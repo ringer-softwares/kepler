@@ -7,7 +7,7 @@ from Gaugi import Algorithm
 from Gaugi import StatusCode
 from Gaugi import StoreGate
 from Gaugi import Logger
-from Gaugi.messenger.macros import *
+from Gaugi.macros import *
 
 from kepler.analysis.constants import etabins, zee_etbins, mubins, deltaRbins
 from kepler.analysis.efficiency.utils import GetProfile, FillHistogram

@@ -68,24 +68,22 @@ class DataReader( Logger ):
 
   def __call__(self, inputFiles  ):
     obj  =None
-    for idx, f in progressbar(enumerate(inputFiles), len(inputFiles), 'Reading...: ', 60,  logger = self._logger):
+    for f in progressbar(inputFiles, 'Reading...: '):
       d = dict(np.load(f,allow_pickle=True))
       obj = self.merge(d,obj,self._skip_these_keys) if obj else d
     return obj
 
 
-  @classmethod
-  def merge( cls, from_dict, to_dict, skip_these_keys ):
+  def merge( self, from_dict, to_dict, skip_these_keys ):
     for key in from_dict.keys():
-      if cls.skip_key(key, skip_these_keys):  continue
+      if self.skip_key(key, skip_these_keys):  continue
       if to_dict[key] is not None:
         to_dict[key] = np.concatenate( (to_dict[key], from_dict[key]) )
       else:
         to_dict[key] = from_dict[key]
     return to_dict
 
-  @classmethod
-  def skip_key( cls, key, skip_these_keys ):
+  def skip_key( self, key, skip_these_keys ):
     for skip_this_key in skip_these_keys:
       if skip_this_key in key:
         return True
@@ -102,17 +100,22 @@ class Merger(Logger):
     Logger.__init__(self, **kw)
     self._nthreads = nthreads
     self._nFilesPerJob = 30
-    self._skip_these_keys = ["features", "etBins", "etaBins", "etBinIdx","etaBinIdx","dtypes"]
+    self._skip_these_keys = ["features", "etBins", "etaBins", "etBinIdx","etaBinIdx","dtypes", "protocol", "allow_pickle"]
     import re
     self._pat = re.compile(r'.+(?P<binkey>et(?P<etBinidx>\d+).eta(?P<etaBinidx>\d+))\..+$')
 
 
-  def __call__( self, et_bin, eta_bin, sgnFileList, bkgFileList, ofile, debug=False ):
+  def __call__( self, et_bin, eta_bin, ofile, sgnFileList=None, bkgFileList=None, debug=False ):
 
+
+    sgnDict=None
+    bkgDict=None
     # get all keys
     key = 'et%d_eta%d'%(et_bin, eta_bin)
-    sgnDict = self.prepare( sgnFileList, key, debug=debug, label='Signal' )
-    bkgDict = self.prepare( bkgFileList, key, debug=debug, label='Background' )
+    if sgnFileList: 
+      sgnDict = self.prepare( sgnFileList, key, debug=debug, label='Signal' )
+    if bkgFileList:
+      bkgDict = self.prepare( bkgFileList, key, debug=debug, label='Background' )
 
     data = None
     target = None
@@ -120,6 +123,9 @@ class Merger(Logger):
     dtypes = None
     etbins = None
     etabins = None
+
+    if sgnDict is None and bkgDict is None:
+      return
 
     if sgnDict and bkgDict is None:
       data = sgnDict['pattern_'+key]
@@ -163,11 +169,10 @@ class Merger(Logger):
           subFileList = subFileList[0:10]
 
         reader = ReaderPool( subFileList, DataReader(self._skip_these_keys), self._nFilesPerJob, self._nthreads )
-        MSG_INFO( self, "Reading files..." )
         outputs = reader()
         d = outputs.pop()
         if len(outputs)>0:
-          for from_dict in progressbar(outputs, len(outputs), 'Mearging signal files: ', 60,  logger = self._logger):
+          for from_dict in progressbar(outputs, 'Mearging signal files: '):
             DataReader.merge( from_dict, d, self._skip_these_keys )
 
         if d['pattern_'+key] is not None:

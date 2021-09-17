@@ -7,7 +7,7 @@ from Gaugi import StatusCode
 from Gaugi import Algorithm
 from Gaugi import ToolSvc
 from Gaugi import declareProperty
-from Gaugi.messenger.macros import *
+from Gaugi.macros import *
 
 from kepler.menu import treat_trigger_dict_type
 from kepler.emulator import Accept
@@ -15,6 +15,8 @@ from kepler.emulator import Accept
 import numpy as np
 import math
 
+def same(value):
+    return [value]*9
 #
 # L2Calo hypo tool
 #
@@ -82,11 +84,11 @@ class TrigEgammaFastCaloHypoTool( Algorithm ):
 
     absEta = math.fabs( pClus.eta() )
     etaBin = -1
-    if absEta > self.Etabins[-1]:
-      absEta=self.Etabins[-1]
+    if absEta > self.EtaBins[-1]:
+      absEta=self.EtaBins[-1]
     # get the corrct eta bin range
-    for idx, value in enumerate(self.Etabins):
-      if ( absEta > self.Etabins[idx] and absEta < self.Etabins[idx+1] ):
+    for idx, value in enumerate(self.EtaBins):
+      if ( absEta > self.EtaBins[idx] and absEta < self.EtaBins[idx+1] ):
         etaBin = idx
 
     # Is in crack region?
@@ -225,8 +227,7 @@ def configure_from_trigger( trigger ):
 #
 def configure( name, etthr, pidname ):
 
-  def same(value):
-    return [value]*9
+  
   from kepler.emulator import L2CaloCutMaps, TrigEgammaFastCaloHypoTool
   cuts = L2CaloCutMaps(etthr)
   hypo  = TrigEgammaFastCaloHypoTool(name,

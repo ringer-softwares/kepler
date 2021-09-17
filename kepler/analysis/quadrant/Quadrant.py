@@ -6,7 +6,7 @@ from Gaugi import Algorithm
 from Gaugi import StatusCode
 from Gaugi import StoreGate
 from Gaugi import Logger
-from Gaugi.messenger.macros import *
+from Gaugi.macros import *
 
 
 from kepler.analysis.constants import offline_etbins, offline_etabins, var_config, mubins

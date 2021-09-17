@@ -134,7 +134,7 @@ class TrigEgammaL1CaloHypoTool( Algorithm ):
   #// (H) and (I) Hadronic core and electromagnetic isolation
   def isolationL1(self, min_, offset, slope, energy, emE):
   	
-    if (emE > self.IsolMaxCut):
+    if (emE > self.IsolCutMax):
       MSG_DEBUG(self, "L1 Isolation skipped, ET > Maximum isolation")
       return True
         

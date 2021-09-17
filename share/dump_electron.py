@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from Gaugi.messenger import LoggingLevel
+from Gaugi import LoggingLevel
 from Gaugi import ToolSvc, GeV
 
 from kepler.core import ElectronLoop

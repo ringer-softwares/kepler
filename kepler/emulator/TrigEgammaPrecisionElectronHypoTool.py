@@ -31,8 +31,8 @@ class TrigEgammaPrecisionElectronHypoTool( Algorithm ):
     declareProperty( self, kw, "RelEtConeCut"        , [-1, -1, -1, -1, -1, -1] )
     declareProperty( self, kw, "RelPtConeCut"        , [-1, -1, -1, -1, -1, -1] )
     declareProperty( self, kw, "DoIsolation"         , False                    )
-    declareProperty( self, kw, "UseClusETForCaloIso" , True                     )
-    declareProperty( self, kw, "UseClusETForTrackIso", True                     )
+    declareProperty( self, kw, "UseClusETforCaloIso" , True                     )
+    declareProperty( self, kw, "UseClusETforTrackIso", True                     )
 
 
   #
@@ -110,8 +110,8 @@ class TrigEgammaPrecisionElectronHypoTool( Algorithm ):
 
     el_clus_pt     = el.caloCluster().et()
     el_trk_pt      = el.trackParticle().pt() if el.trackParticle() else -999
-    caloIso_ele_pt = el_clus_pt if self.useClusETforCaloIso else el_trk_pt
-    trkIso_ele_pt  = el_clus_pt if self.useClusETforTrackIso else el_trk_pt
+    caloIso_ele_pt = el_clus_pt if self.UseClusETforCaloIso else el_trk_pt
+    trkIso_ele_pt  = el_clus_pt if self.UseClusETforTrackIso else el_trk_pt
 
     absEtConeCut_ispassed = True
     # Cut on Absolute Calo Isolation

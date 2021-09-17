@@ -2,7 +2,7 @@
 __all__ = ['TrigEgammaFastElectronHypoTool']
 
 
-from Gaugi.messenger.macros import *
+from Gaugi.macros import *
 from Gaugi import Algorithm
 from Gaugi import StatusCode
 from Gaugi import ToolSvc

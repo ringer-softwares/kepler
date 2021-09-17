@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from Gaugi.messenger import LoggingLevel, Logger
-from Gaugi.messenger.macros import *
+from Gaugi import LoggingLevel, Logger
+from Gaugi.macros import *
 import argparse
 
 
@@ -12,10 +12,8 @@ class Parallel( Logger ):
   def __init__(self, fList):
     
     Logger.__init__(self)
-    from Gaugi import csvStr2List
-    from Gaugi import expandFolders
-    self.fList = csvStr2List ( fList )
-    self.fList = expandFolders( fList )
+    from Gaugi import expand_folders
+    self.fList = expand_folders( fList )
     self.process_pipe = []
     self.output_stack = []
     import random
