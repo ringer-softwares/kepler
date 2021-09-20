@@ -77,8 +77,9 @@ class TrigEgammaL1CaloHypoTool( Algorithm ):
     l1type      = self.L1Item.replace('L1_EM','') # L1_EM3 to EM3
     l1threshold = float(re.findall('\d+', l1type)[0])
 
+
     c=0
-    if(self.WPNames[0] in l1type):  c=1 # Tight
+    if(self.WPNames[0] in l1type):  c=1 # Tightl
     if(self.WPNames[1] in l1type):  c=2 # Medium
     if(self.WPNames[2] in l1type):  c=3 # Loose
 
@@ -117,7 +118,7 @@ class TrigEgammaL1CaloHypoTool( Algorithm ):
     
     if ('V' in l1type):
       MSG_DEBUG(self, "L1 (V) CUT")
-      if not self.variableEtL1(L1Item,emE,eta):
+      if not self.variableEtL1(l1type,emE,eta):
         MSG_DEBUG(self, "rejected")
         return False
       MSG_DEBUG(self, "accepted")
@@ -165,12 +166,11 @@ class TrigEgammaL1CaloHypoTool( Algorithm ):
     # float eta = fabs((int)l1eta*10);
     eta = math.fabs(l1eta)
 
-
-    if (L1item=="50V"):
+    if (L1item == "50V"):
       if (eta >= 0.8 and eta < 1.2): cut = 51.0
       elif (eta >= 1.2 and eta < 1.6): cut = 50.0
       elif (eta >= 1.6 and eta < 2.0): cut = 51.0
-      else: cut = 52;
+      else: cut = 52
     
     elif (L1item=="8VH"):
       if   (eta > 0.8 and eta <= 1.1): cut = 7.0
