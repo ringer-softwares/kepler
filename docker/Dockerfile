@@ -15,7 +15,6 @@ RUN ln -snf /usr/share/zoneinfo/Etc/UTC /etc/localtime \
     && echo "Etc/UTC" > /etc/timezone
 
 
-RUN ls
 RUN apt-get update --fix-missing && \
     apt-get install -y --no-install-recommends \
     python3 \
@@ -65,7 +64,6 @@ RUN wget --progress=dot:giga https://cmake.org/files/v3.19/cmake-3.19.7-Linux-x8
 RUN chmod 755 /usr/cmake-3.19.7-Linux-x86_64.sh
 RUN ./cmake-3.19.7-Linux-x86_64.sh --skip-license
 RUN ln -sf /usr/bin/python3 /usr/bin/python
-
 RUN apt-get update && apt-get install -y texlive-full
 
 
@@ -78,17 +76,7 @@ RUN git checkout v6-16-00 && mkdir buildthis
 WORKDIR /opt/root/buildthis
 RUN CPU_N=$(grep -c ^processor /proc/cpuinfo) && cmake  --Dpython_version=3 .. && make -j$CPU_N
 
-
-
-#RUN wget https://root.cern/download/root_v6.16.00.Linux-ubuntu18-x86_64-gcc7.3.tar.gz
-#RUN tar -xzvf root_v6.16.00.Linux-ubuntu18-x86_64-gcc7.3.tar.gz
-#RUN source root/bin/thisroot.sh # also available: thisroot.{csh,fish,bat}
-
-
-
 RUN ln -sf /usr/bin/pip3 /usr/bin/pip
-
-
 RUN pip3 install -U pip setuptools
 
 # Install pip packages
