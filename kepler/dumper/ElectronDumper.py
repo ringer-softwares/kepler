@@ -14,6 +14,8 @@ from Gaugi.constants import GeV
 
 import numpy as np
 import collections
+import gc
+
 from pprint import pprint
 
 
@@ -26,7 +28,8 @@ class ElectronDumper( Algorithm ):
   #
   # constructor
   #
-  def __init__(self, name, output, etbins, etabins, dumpRings=True ):
+  def __init__(self, name, output, etbins, etabins, dumpRings=True, 
+               target = 0 ):
     
     Algorithm.__init__(self, name)
     self.__event = {}
@@ -38,6 +41,7 @@ class ElectronDumper( Algorithm ):
     self.__etbins = etbins
     self.__etabins = etabins
     self.dumpRings = dumpRings
+    self.target = target
 
 
  
@@ -345,47 +349,110 @@ class ElectronDumper( Algorithm ):
   def finalize( self ):
 
     from Gaugi import save, mkdir_p
-    outputname = self.__outputname
+    mkdir_p( self.__outputname )
 
     for etBinIdx in range(len(self.__etbins)-1):
       for etaBinIdx in range(len(self.__etabins)-1):
 
         key =  'et%d_eta%d' % (etBinIdx,etaBinIdx)
-        mkdir_p( outputname )
+        
         if self.__event[key] is None:
           continue
 
-        d = {
-            "features"  : self.__event_label,
-            "etBins"    : self.__etbins,
-            "etaBins"   : self.__etabins,
-            "etBinIdx"  : etBinIdx,
-            "etaBinIdx" : etaBinIdx
-            }
+        # file output name
+        ofile = self.__outputname+'/'+self.__outputname+"_"+key
 
-        d[ 'pattern_'+key ] = np.array( self.__event[key] )
-
-        # Fill dtypes
-        dtypes = []
-        row = self.__event[key][0] # get the first event
-        for idx, feature in enumerate(self.__event_label):
-          if (type(row[idx]) is float) or (type(row[idx]) is np.float32):
-            dtypes.append( 'float32' )
-          elif type(row[idx]) is int:
-            dtypes.append('int')
-          elif type(row[idx]) is list:
-            dtypes.append('object')
-          elif type(row[idx]) is bool:
-            dtypes.append('bool')
-
-        d['dtypes'] = dtypes
-
-
-        MSG_INFO( self, 'Saving %s with : (%d, %d)', key, d['pattern_'+key].shape[0], d['pattern_'+key].shape[1] )
-        save( d, outputname+'/'+outputname+"_"+key , protocol = 'savez_compressed')
+        self.save( self.__event[key], self.__event_label, 
+                   etBinIdx, etaBinIdx, ofile)
+  
     return StatusCode.SUCCESS
 
 
 
 
 
+  #
+  # Prepare dataset
+  #
+  def save( self, data, features, etBinIdx, etaBinIdx, ofile):
+
+      MSG_INFO(self, 'Saving... ' + ofile)
+
+      # get type names from first event
+      dtypes = np.array( self.get_types(data[0], features) )
+
+      data = np.array(data)
+      features = np.array(features)
+      n_samples = data.shape[0]
+
+      if data.shape[1] != len(features):
+        MSG_FATAL( self, "number of columns is different than features. Abort! something is wrong!")
+
+
+      # Loop over regions
+      d = { 
+            # data header
+            "etBins"    : self.__etbins,
+            "etaBins"   : self.__etabins,
+            "etBinIdx"  : etBinIdx,
+            "etaBinIdx" : etaBinIdx,
+            "ordered_features" : features,
+            #"ordered_dtypes": dtypes,
+            }
+
+
+      # Create float staff
+      float_indexs = [ idx for idx, name in enumerate(dtypes) if 'float32' in name]
+      data_float = data[:, float_indexs  ].astype('float32')
+      features_float = features[float_indexs]
+
+      # create bool staff
+      bool_indexs = [ idx for idx, name in enumerate(dtypes) if 'bool' in name]
+      data_bool = data[:, bool_indexs  ].astype(bool)
+      features_bool = features[bool_indexs]
+
+      # create int staff
+      int_indexs = [ idx for idx, name in enumerate(dtypes) if 'int' in name]
+      data_int = data[:, int_indexs].astype(int)
+      features_int = features[int_indexs]
+
+      # others
+      object_indexs = [ idx for idx, name in enumerate(dtypes) if 'object' in name]
+      data_object = data[: , object_indexs]
+      features_object = features[object_indexs]
+
+
+      d['data_float']       = data_float
+      d['data_bool']        = data_bool
+      d['data_int']         = data_int
+      d['data_object']      = data_object
+      d['features_float']   = features_float
+      d['features_bool']    = features_bool
+      d['features_int']     = features_int
+      d['features_object']  = features_object
+      d['target']           = np.ones( (n_samples,) ) * self.target
+      gc.collect()
+
+      MSG_INFO( self, 'Saving (%d,%d) with : (%d,%d)', etBinIdx, etaBinIdx, 
+                data_float.shape[0], len(features) )
+
+      save(d, ofile, protocol = 'savez_compressed') # allow_pickle by default
+
+
+
+  #
+  # Get dtype names for each column
+  #
+  def get_types(self, row, features):
+    # Fill dtypes
+    dtypes = []
+    for idx, feature in enumerate(features):
+      if (type(row[idx]) is float) or (type(row[idx]) is np.float32):
+        dtypes.append( 'float32' )
+      elif type(row[idx]) is int:
+        dtypes.append('int')
+      elif type(row[idx]) is list:
+        dtypes.append('object')
+      elif type(row[idx]) is bool:
+        dtypes.append('bool')
+    return dtypes

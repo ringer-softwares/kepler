@@ -40,6 +40,7 @@ parser.add_argument('--mute', action='store_true',
     dest='mute', required = False, 
     help = "Use this for production. quite output")
 
+
 #
 # event selection configuration
 #
@@ -64,6 +65,9 @@ parser.add_argument('--et_max', action='store',
     dest='et_max', required = False, type=int, default=1000,
     help = "Fast calo max et value in GeV") 
 
+parser.add_argument('-t','--target_label', action='store',
+    dest='target_label', required = False, default = 1, type=int,
+    help = "Additional target label to be stored")
 
 
 if len(sys.argv)==1:
@@ -100,6 +104,11 @@ def deltaR_decorator( ctx ):
     # container with only one element
     el = ctx.getHandler("ElectronContainer")
     return el.deltaR()
+
+def eeMass_decorator( ctx ):
+    el = ctx.getHandler("ElectronContainer")
+    return el.eeMass()
+
 
 
 class MyFilter:
@@ -138,6 +147,19 @@ my_filter = MyFilter(args.et_min, args.et_max, eval(args.pidname))
 from kepler.menu.install import install_commom_features_for_electron_dump
 extra_features = install_commom_features_for_electron_dump() 
 
+original_triggers = [ "TDT__L1Calo__e28_lhtight_nod0_ivarloose",
+                      "TDT__L2Calo__e28_lhtight_nod0_ivarloose",
+                      "TDT__L2__e28_lhtight_nod0_ivarloose",
+                      "TDT__EFCalo__e28_lhtight_nod0_ivarloose",
+                      "TDT__HLT__e28_lhtight_nod0_ivarloose",
+                      "TDT__L1Calo__e28_lhtight_nod0_noringer_ivarloose",
+                      "TDT__L2Calo__e28_lhtight_nod0_noringer_ivarloose",
+                      "TDT__L2__e28_lhtight_nod0_noringer_ivarloose",
+                      "TDT__EFCalo__e28_lhtight_nod0_noringer_ivarloose",
+                      "TDT__HLT__e28_lhtight_nod0_noringer_ivarloose",
+                    ]
+extra_features += original_triggers
+
 
 
 #
@@ -160,13 +182,14 @@ et_bins = eval(eval(args.et_bins))
 eta_bins = eval(eval(args.eta_bins))
 
 
-dumper = ElectronDumper("Dumper", output, et_bins, eta_bins, dumpRings=True)
+dumper = ElectronDumper("Dumper", output, et_bins, eta_bins, dumpRings=True, target=args.target_label)
 # append extra features from emulator
 dumper += extra_features
 
 # append extra features by hand!
-dumper.decorate( "el_TaP_deltaR", deltaR_decorator)
 dumper.decorate( "trig_EF_el_lhtight_ivarloose", iso_decorator )
+dumper.decorate( "el_TaP_Mass", eeMass_decorator)
+dumper.decorate( "el_TaP_deltaR", deltaR_decorator)
 
 ToolSvc+=dumper
 

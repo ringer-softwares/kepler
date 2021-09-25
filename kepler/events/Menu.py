@@ -9,7 +9,9 @@ from Gaugi import Algorithm
 from Gaugi import StatusCode
 from Gaugi.macros import *
 from kepler.core import Dataframe as DataframeEnum
-from kepler.events import DecisionCore, AcceptType
+from kepler.events import AcceptType
+from kepler.emulator import Accept
+
 import collections
 
 
@@ -70,24 +72,10 @@ class Menu(EDM):
       #  TDT__EFCalo__e28_lhtight_nod0_ivarloose
       tdt = self.getContext().getHandler("HLT__TDT")
       trigInfo = key.split('__')
-      tdt.core(DecisionCore.TriggerDecisionTool) # athena core
       # TDT__AcceptType__trigItem
       passed = tdt.ancestorPassed( 'HLT_'+trigInfo[-1], AcceptType.fromstring(trigInfo[1]) )
       accept = Accept( key )
-      accept.setCutResult( 'pass', passed )
-      self.setDecor( key, accept )
-      return accept
-    # get the accept decision from the Emulation metadata
-    elif (self._dataframe is DataframeEnum.Electron_v1 or DataframeEnum.Photon_v1) and key.startswith('EMU__'):
-      #  EMU__HLT__e28_lhtight_nod0_ivarloose
-
-      tdt = self.getContext().getHandler("HLT__TDT")
-      trigInfo = key.split('__')
-      tdt.core(DecisionCore.TrigEgammaEmulationTool) # athena emulation e/g core
-      # EMU__AcceptType__trigItem
-      passed = tdt.ancestorPassed( 'HLT_'+trigInfo[-1], AcceptType.fromstring(trigInfo[1]) )
-      accept = Accept( key )
-      accept.setCutResult( 'pass', passed )
+      accept.setCutResult( 'Pass', passed )
       self.setDecor( key, accept )
       return accept
 

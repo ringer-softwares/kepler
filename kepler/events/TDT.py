@@ -1,5 +1,5 @@
 
-__all__ = ["TDT", "DecisionCore", "AcceptType"]
+__all__ = ["TDT", "AcceptType"]
 
 
 from Gaugi import EDM
@@ -20,15 +20,6 @@ class AcceptType(EnumStringification):
     HLT    = 4
 
 
-class DecisionCore(EnumStringification):
-    # Athena navigation core
-    TriggerDecisionTool = 0
-    # Athena e/g emulation tool
-    TrigEgammaEmulationTool = 1
-
-
-
-
 
 class TDT(EDM):
     # define all skimmed branches here.
@@ -39,11 +30,6 @@ class TDT(EDM):
                 'trig_tdt_L2_el_accept',
                 'trig_tdt_EF_calo_accept',
                 'trig_tdt_EF_el_accept',
-                'trig_tdt_emu_L1_calo_accept',
-                'trig_tdt_emu_L2_calo_accept',
-                'trig_tdt_emu_L2_el_accept',
-                'trig_tdt_emu_EF_calo_accept',
-                'trig_tdt_emu_EF_el_accept',
                 ],
 
             "Photon_v1":[
@@ -52,11 +38,6 @@ class TDT(EDM):
                 'trig_tdt_L2_ph_accept',
                 'trig_tdt_EF_calo_accept',
                 'trig_tdt_EF_ph_accept',
-                'trig_tdt_emu_L1_calo_accept',
-                'trig_tdt_emu_L2_calo_accept',
-                'trig_tdt_emu_L2_ph_accept',
-                'trig_tdt_emu_EF_calo_accept',
-                'trig_tdt_emu_EF_ph_accept',
                 ],
             }
 
@@ -69,15 +50,10 @@ class TDT(EDM):
         # the name of the ttree metadata where is stored the information
         # do not change is name.
         self._metadataName = 'tdt'
-        # decision core (default)
-        self._core = DecisionCore.TriggerDecisionTool
 
 
-    def core(self, core):
-        if core is (DecisionCore.TriggerDecisionTool) or (DecisionCore.TrigEgammaEmulationTool):
-            self._core = core
-        else:
-            MSG_ERROR( self, 'DecisionCore type unknow')
+
+
 
 
     def initialize(self):
@@ -130,14 +106,12 @@ class TDT(EDM):
 
 
     def isPassed(self, trigItem):
-        return self.ancestorPassed(trigitem,AcceptType.HLT, ignoreDeactivateRois=True)
+        return self.ancestorPassed(trigitem,AcceptType.HLT)
 
     def isActive(self, trigItem):
         if trigItem in self._triggerList:
-            #for idx , t in enumerate(self._triggerList):
-            #  print idx,' = ',t,' = ',self._event.trig_tdt_EF_calo_accept[idx], '---> bool? ', bool(self._event.trig_tdt_EF_calo_accept[idx])
             idx = self._triggerList.index(trigItem)
-            isGood = (self._event.trig_tdt_L1_calo_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_L1_calo_accept[idx])
+            isGood = (self._event.trig_tdt_L1_calo_accept[idx])
             return False if isGood<0 else True
         else:
             return False
@@ -155,29 +129,27 @@ class TDT(EDM):
         if trigItem in self._triggerList:
             # Has TE match with the offline electron/photon object
           idx = self._triggerList.index(trigItem)
-          isGood = (self._event.trig_tdt_L1_calo_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_L1_calo_accept[idx])
+          isGood = (self._event.trig_tdt_L1_calo_accept[idx] )
           if isGood<0:
               return False
           if   acceptType is AcceptType.L1Calo:
-              return bool(self._event.trig_tdt_L1_calo_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_L1_calo_accept[idx])
+              return bool(self._event.trig_tdt_L1_calo_accept[idx] )
           elif acceptType is AcceptType.L2Calo:
-              return bool(self._event.trig_tdt_L2_calo_accept[idx]if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_L2_calo_accept[idx])
+              return bool(self._event.trig_tdt_L2_calo_accept[idx])
           elif acceptType is AcceptType.L2:
               if self._dataframe is DataframeEnum.Electron_v1:
-                return bool(self._event.trig_tdt_L2_el_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_L2_el_accept[idx])
+                return bool(self._event.trig_tdt_L2_el_accept[idx])
               elif self._dataframe is DataframeEnum.Photon_v1:
-                return bool(self._event.trig_tdt_L2_ph_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_L2_ph_accept[idx])
+                return bool(self._event.trig_tdt_L2_ph_accept[idx])
           elif acceptType is AcceptType.EFCalo:
-              ef = bool(self._event.trig_tdt_EF_calo_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_EF_calo_accept[idx])
-              return bool(self._event.trig_tdt_EF_calo_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_EF_calo_accept[idx])
+              return bool(self._event.trig_tdt_EF_calo_accept[idx] )
           elif acceptType is AcceptType.HLT:
               if self._dataframe is DataframeEnum.Electron_v1:
-                return bool(self._event.trig_tdt_EF_el_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_EF_el_accept[idx])
+                return bool(self._event.trig_tdt_EF_el_accept[idx])
               if self._dataframe is DataframeEnum.Photon_v1:
-                return bool(self._event.trig_tdt_EF_ph_accept[idx] if self._core is DecisionCore.TriggerDecisionTool else self._event.trig_tdt_emu_EF_ph_accept[idx])
+                return bool(self._event.trig_tdt_EF_ph_accept[idx])
 
           else:
-              print(trigItem)
               MSG_ERROR( self, 'Trigger type not suppported.')
         else:
             MSG_WARNING( self, 'Trigger %s not storage in TDT metadata.',trigItem)

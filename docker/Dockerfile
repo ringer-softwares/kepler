@@ -83,7 +83,6 @@ RUN pip3 install -U pip setuptools
 RUN pip3 install --no-cache-dir \
     setuptools \
     future \
-    tensorflow \
     onnxruntime \
     onnx \
     keras2onnx \
@@ -112,7 +111,8 @@ RUN pip3 install --no-cache-dir \
     psycopg2-binary \
     ansi2html \
     hub \
-    pickle5
+    pickle5 \
+    tqdm
 
 
 
