@@ -102,9 +102,13 @@ class MergeNpzPool( Logger ):
 
   def run( self ):
     while len(self.__files_per_job) > 0:
+
+      #for idx, s in enumerate(self.__slots):
+      #  print(str(idx) + ' ' + str(s.isAvailable()) )
+
       slot = self.getAvailable()
       if slot:
-        time.sleep(1)
+        #time.sleep(1)
         command = self.generate()
         slot.run( command )
     while self.busy():

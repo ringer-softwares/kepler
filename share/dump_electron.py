@@ -69,6 +69,10 @@ parser.add_argument('-t','--target_label', action='store',
     dest='target_label', required = False, default = 1, type=int,
     help = "Additional target label to be stored")
 
+parser.add_argument('--add_tdt_triggers', action='store_true',
+    dest='add_tdt_triggers', required = False, 
+    help = "Include trigges from TDT into the data samples")
+
 
 if len(sys.argv)==1:
   parser.print_help()
@@ -147,18 +151,19 @@ my_filter = MyFilter(args.et_min, args.et_max, eval(args.pidname))
 from kepler.menu.install import install_commom_features_for_electron_dump
 extra_features = install_commom_features_for_electron_dump() 
 
-original_triggers = [ "TDT__L1Calo__e28_lhtight_nod0_ivarloose",
-                      "TDT__L2Calo__e28_lhtight_nod0_ivarloose",
-                      "TDT__L2__e28_lhtight_nod0_ivarloose",
-                      "TDT__EFCalo__e28_lhtight_nod0_ivarloose",
-                      "TDT__HLT__e28_lhtight_nod0_ivarloose",
-                      "TDT__L1Calo__e28_lhtight_nod0_noringer_ivarloose",
-                      "TDT__L2Calo__e28_lhtight_nod0_noringer_ivarloose",
-                      "TDT__L2__e28_lhtight_nod0_noringer_ivarloose",
-                      "TDT__EFCalo__e28_lhtight_nod0_noringer_ivarloose",
-                      "TDT__HLT__e28_lhtight_nod0_noringer_ivarloose",
-                    ]
-extra_features += original_triggers
+if args.add_tdt_triggers:
+    original_triggers = [ "TDT__L1Calo__e28_lhtight_nod0_ivarloose",
+                          "TDT__L2Calo__e28_lhtight_nod0_ivarloose",
+                          "TDT__L2__e28_lhtight_nod0_ivarloose",
+                          "TDT__EFCalo__e28_lhtight_nod0_ivarloose",
+                          "TDT__HLT__e28_lhtight_nod0_ivarloose",
+                          "TDT__L1Calo__e28_lhtight_nod0_noringer_ivarloose",
+                          "TDT__L2Calo__e28_lhtight_nod0_noringer_ivarloose",
+                          "TDT__L2__e28_lhtight_nod0_noringer_ivarloose",
+                          "TDT__EFCalo__e28_lhtight_nod0_noringer_ivarloose",
+                          "TDT__HLT__e28_lhtight_nod0_noringer_ivarloose",
+                        ]
+    extra_features += original_triggers
 
 
 
