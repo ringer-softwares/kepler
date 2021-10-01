@@ -1,16 +1,15 @@
 
 
-
-
 # External
-from ROOT import TH1F, TH2F, TProfile, TProfile2D
+from ROOT import TH1F, TH2F, TProfile, TProfile2D, TCanvas
 import numpy as np
 import array
+from ROOT import TCanvas
+from root_utils.functions import *
+from root_utils.axis import *
 
 
-
-
-def plot_profiles( hists, xlabel, these_colors, these_transcolors, these_markers,
+def PlotProfiles( hists, xlabel, these_colors, these_transcolors, these_markers,
                   drawopt='pE1', 
                   rlabel='Trigger/Ref.',
                   ylabel='Trigger Efficiency', 
@@ -22,8 +21,7 @@ def plot_profiles( hists, xlabel, these_colors, these_transcolors, these_markers
                   pad_bot_y_axes_maximum=1.1,
                   pad_bot_y_axes_minimum=0.9):
     
-    from ROOT import TCanvas
-    from Gaugi.monet import RatioCanvas, AddHistogram, FormatCanvasAxes, SetAxisLabels
+    
     doRatio = True if (doRatioCanvas and (len(hists)>1)) else False
     collect = []
     canvas = RatioCanvas( 'canvas', "", 700, 500) if doRatio else TCanvas( 'canvas', "", 700, 500 )
@@ -67,7 +65,7 @@ def plot_profiles( hists, xlabel, these_colors, these_transcolors, these_markers
 
 def GetHistogramFromMany( basepath, paths, keys ,  prefix='Loading...' , logger=None):
   
-    from Gaugi import progressbar, expandFolders
+    from Gaugi import progressbar, expand_folders
     from copy import deepcopy     
     # internal open function
     def Open( path ):
@@ -103,9 +101,9 @@ def GetHistogramFromMany( basepath, paths, keys ,  prefix='Loading...' , logger=
                 totalHist.Add( hist )
         return totalHist
 
-    files = expandFolders(basepath)
+    files = expand_folders(basepath)
     hists = {}
-    for f in progressbar(files, len(files), prefix=prefix, logger=logger):
+    for f in progressbar(files, 'Loading'):
         try:
             _f, _run_numbers = Open(f)
         except:
@@ -169,7 +167,7 @@ def GetHistogramRootPaths( triggerList, removeInnefBefore=False, is_emulation=Fa
 
   entries=len(triggerList)
   step = int(entries/100) if int(entries/100) > 0 else 1
-  for trigItem in progressbar(triggerList, entries, step=step,logger=logger, prefix='Making paths...'):
+  for trigItem in progressbar(triggerList, 'Making paths...'):
     isL1 = True if trigItem.startswith('L1_') else False
     these_level_names = ['L1Calo'] if isL1 else level_names
     ### Retrieve all paths

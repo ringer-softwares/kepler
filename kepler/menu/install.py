@@ -71,7 +71,7 @@ def install_commom_features_for_electron_dump():
 def install_Zee_ringer_v6():
 
   from kepler.emulator import RingerSelectorTool
-  calibpath = os.environ['RINGER_CALIBPATH'] + '/data/electron/Zee/TrigL2_20170505_v6'
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20170505_v6'
 
   def getPatterns( context ):
     def norm1( data ):
@@ -99,7 +99,7 @@ def install_Zee_ringer_v6():
 def install_Zee_ringer_v8():
 
   from kepler.emulator import RingerSelectorTool
-  calibpath = os.environ['RINGER_CALIBPATH'] + '/data/electron/Zee/TrigL2_20180125_v8'
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20180125_v8'
 
   def getPatterns( context ):
     def norm1( data ):
@@ -128,7 +128,7 @@ def install_Zee_ringer_v9():
 
   from kepler.emulator import RingerSelectorTool
   import os
-  calibpath = os.environ['RINGER_CALIBPATH'] + '/data/electron/Zee/TrigL2_20210306_v9'
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20210306_v9'
 
 
   def getPatterns( context ):
@@ -170,7 +170,7 @@ def install_Zee_ringer_v10():
 
   from kepler.emulator import RingerSelectorTool
   import os
-  calibpath = os.environ['RINGER_CALIBPATH'] + '/data/electron/Zee/TrigL2_20210306_v10'
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20210306_v10'
 
   def getPatterns( context ):
     def norm1( data ):
@@ -203,7 +203,7 @@ def install_Zee_ringer_v11():
   from kepler.emulator import RingerSelectorTool
   import os
   #calibpath = os.environ['RINGER_CALIBPATH'] + '/trigger/data/zee/TrigL2_20210811_v11'
-  calibpath = os.environ['RINGER_CALIBPATH'] + '/data/electron/Zee/TrigL2_20210306_v11'
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20210306_v11'
 
 
   def getPatterns( context ):
@@ -246,7 +246,7 @@ def install_Zee_ringer_v1_el():
 
   from kepler.emulator import RingerSelectorTool
   import os
-  calibpath = os.environ['RINGER_CALIBPATH'] + '/data/electron/Zee/TrigL2_20210306_v1_el'
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20210306_v1_el'
 
 
   def getPatterns( context ):
@@ -300,7 +300,7 @@ def install_Zee_ringer_v2_el():
 
   from kepler.emulator import RingerSelectorTool
   import os
-  calibpath = os.environ['RINGER_CALIBPATH'] + '/data/electron/Zee/TrigL2_20210306_v2_el'
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20210306_v2_el'
 
   def getPatterns( context ):
     def norm1( data ):
