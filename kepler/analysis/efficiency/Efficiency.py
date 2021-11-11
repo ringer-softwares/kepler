@@ -10,14 +10,12 @@ from Gaugi import Logger
 from Gaugi.macros import *
 
 from kepler.analysis.constants import etabins, zee_etbins, mubins, deltaRbins
-from kepler.analysis.efficiency.utils import GetProfile, FillHistogram
 from kepler.menu import get_chain_dict
 from ROOT import TH1F, TH2F
 
 import numpy as np
 import array
-
-
+import rootplotlib as rpl
 
 #
 # Efficiency 
@@ -114,23 +112,23 @@ class Efficiency( Logger ):
     # Fill efficiency histograms
     def fill_histograms( path, df , col_name, etthr):
       # Fill denominator
-      FillHistogram( sg.histogram(path+'/et'), df['el_et'].values / GeV )
+      rpl.hist1d.fill( sg.histogram(path+'/et'), df['el_et'].values / GeV )
       # et > etthr + 1
       df_temp = df.loc[ (df['el_et'] > (etthr + 1)*GeV ) ]
-      FillHistogram( sg.histogram(path+'/eta'), df_temp['el_eta'].values )
-      FillHistogram( sg.histogram(path+'/phi'), df_temp['el_phi'].values )
-      FillHistogram( sg.histogram(path+'/mu' ), df_temp['avgmu'].values )
-      FillHistogram( sg.histogram(path+'/deltaR' ), df_temp['el_TaP_deltaR'].values )
+      rpl.hist1d.fill( sg.histogram(path+'/eta'), df_temp['el_eta'].values )
+      rpl.hist1d.fill( sg.histogram(path+'/phi'), df_temp['el_phi'].values )
+      rpl.hist1d.fill( sg.histogram(path+'/mu' ), df_temp['avgmu'].values )
+      rpl.hist1d.fill( sg.histogram(path+'/deltaR' ), df_temp['el_TaP_deltaR'].values )
 
       # Fill numerator
       df_temp = df.loc[ df[col_name] == True ]
       if df_temp.shape[0] > 0:
-        FillHistogram( sg.histogram(path+'/match_et'), df_temp['el_et'].values / GeV )
+        rpl.hist1d.fill( sg.histogram(path+'/match_et'), df_temp['el_et'].values / GeV )
         df_temp = df_temp.loc[ (df_temp['el_et'] > (etthr + 1)*GeV ) ]
-        FillHistogram( sg.histogram( path+'/match_eta' ), df_temp['el_eta'].values )
-        FillHistogram( sg.histogram( path+'/match_phi' ), df_temp['el_phi'].values )
-        FillHistogram( sg.histogram( path+'/match_mu'  ), df_temp['avgmu'].values )
-        FillHistogram( sg.histogram( path+'/match_deltaR'  ), df_temp['el_TaP_deltaR'].values )
+        rpl.hist1d.fill( sg.histogram( path+'/match_eta' ), df_temp['el_eta'].values )
+        rpl.hist1d.fill( sg.histogram( path+'/match_phi' ), df_temp['el_phi'].values )
+        rpl.hist1d.fill( sg.histogram( path+'/match_mu'  ), df_temp['avgmu'].values )
+        rpl.hist1d.fill( sg.histogram( path+'/match_deltaR'  ), df_temp['el_TaP_deltaR'].values )
 
     # Fill each trigger step
     fill_histograms(trigger+'/L1Calo', df_temp, 'L1Calo_'+trigger, etthr )
@@ -160,7 +158,7 @@ class Efficiency( Logger ):
   # Get efficiency histogram
   #
   def profile(self, trigger, var):
-    return GetProfile(self.numerator(trigger,var), self.denominator(trigger,var))
+    return rpl.hist1d.divide(self.numerator(trigger,var), self.denominator(trigger,var))
 
 
 

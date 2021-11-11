@@ -187,7 +187,7 @@ et_bins = eval(eval(args.et_bins))
 eta_bins = eval(eval(args.eta_bins))
 
 
-dumper = ElectronDumper("Dumper", output, et_bins, eta_bins, dumpRings=True, target=args.target_label)
+dumper = ElectronDumper(output, et_bins, eta_bins, target=args.target_label, dumpRings=True )
 # append extra features from emulator
 dumper += extra_features
 

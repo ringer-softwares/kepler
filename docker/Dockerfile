@@ -112,7 +112,9 @@ RUN pip3 install --no-cache-dir \
     ansi2html \
     hub \
     pickle5 \
-    tqdm
+    tqdm \
+    twine \
+    atlas-mpl-style 
 
 
 

@@ -8,7 +8,7 @@ from kepler.utils import get_bin_indexs
 
 from Gaugi import Algorithm
 from Gaugi import StatusCode
-from Gaugi import save, load
+from Gaugi import save, load, declareProperty
 from Gaugi.macros import *
 from Gaugi.constants import GeV
 
@@ -28,20 +28,22 @@ class ElectronDumper( Algorithm ):
   #
   # constructor
   #
-  def __init__(self, name, output, etbins, etabins, dumpRings=True, 
-               target = 0 ):
+  def __init__(self, output, etbins, etabins, target, **kw ):
     
-    Algorithm.__init__(self, name)
+    Algorithm.__init__(self)
+
+    declareProperty( self, kw, 'dump_rings', True)
+
+    self.__target = target
+    self.__etbins = etbins
+    self.__etabins = etabins
+    self.__outputname = output
+
     self.__event = {}
     self.__event_label = []
     self.__decorators = collections.OrderedDict({})
     self.__save_these_bins = list()
     self.__extra_features = list()
-    self.__outputname = output
-    self.__etbins = etbins
-    self.__etabins = etabins
-    self.dumpRings = dumpRings
-    self.target = target
 
 
  
@@ -63,18 +65,10 @@ class ElectronDumper( Algorithm ):
 
     Algorithm.initialize(self)
 
-    # TODO: This is a hack to run isolation per electron object
-    from kepler.emulator.TrigEgammaPrecisionElectronHypoTool import configure
-    self.__isoTool = configure('isolation', 'lhtight', 'ivarloose')
-    if self.__isoTool.initialize().isFailure():
-      MSG_FATAL(self, "Its not possible to initialize isolation tool standalone")
-
-
     # build map
     for etBinIdx in range(len(self.__etbins)-1):
       for etaBinIdx in range(len(self.__etabins)-1):
         self.__event[ 'et%d_eta%d' % (etBinIdx,etaBinIdx) ] = None
-
 
     #
     # Event info
@@ -430,7 +424,7 @@ class ElectronDumper( Algorithm ):
       d['features_bool']    = features_bool
       d['features_int']     = features_int
       d['features_object']  = features_object
-      d['target']           = np.ones( (n_samples,) ) * self.target
+      d['target']           = np.ones( (n_samples,) ) * self.__target
       gc.collect()
 
       MSG_INFO( self, 'Saving (%d,%d) with : (%d,%d)', etBinIdx, etaBinIdx, 

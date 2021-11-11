@@ -4,66 +4,10 @@
 from ROOT import TH1F, TH2F, TProfile, TProfile2D, TCanvas
 import numpy as np
 import array
-from ROOT import TCanvas
-from root_utils.functions import *
-from root_utils.axis import *
-
-
-def PlotProfiles( hists, xlabel, these_colors, these_transcolors, these_markers,
-                  drawopt='pE1', 
-                  rlabel='Trigger/Ref.',
-                  ylabel='Trigger Efficiency', 
-                  doRatioCanvas=False,
-                  y_axes_maximum=1.1, 
-                  y_axes_minimum=0.0, 
-                  pad_top_y_axes_maximum=1.1, 
-                  pad_top_y_axes_minimum=0.0, 
-                  pad_bot_y_axes_maximum=1.1,
-                  pad_bot_y_axes_minimum=0.9):
-    
-    
-    doRatio = True if (doRatioCanvas and (len(hists)>1)) else False
-    collect = []
-    canvas = RatioCanvas( 'canvas', "", 700, 500) if doRatio else TCanvas( 'canvas', "", 700, 500 )
-    if doRatio:
-        pad_top = canvas.GetPrimitive('pad_top')
-        pad_bot = canvas.GetPrimitive('pad_bot')
-    
-    refHist = hists[0]
-    for idx, hist in enumerate(hists):
-        if doRatio:
-            if idx < 1:
-                refHist.SetLineColor(these_colors[idx])
-                refHist.SetMarkerColor(these_colors[idx])
-                refHist.SetMaximum(pad_top_y_axes_maximum)
-                refHist.SetMinimum(pad_top_y_axes_minimum)
-                AddHistogram(pad_top, refHist, drawopt = drawopt, markerStyle=these_markers[idx])
-            else:
-                h_hist=hist.Clone()
-                h_hist.Divide(h_hist,refHist,1.,1.,'B')
-                h_hist.SetMinimum(pad_bot_y_axes_minimum)
-                h_hist.SetMaximum(pad_bot_y_axes_maximum)
-                collect.append(h_hist)
-                hist.SetLineColor(these_colors[idx])
-                hist.SetMarkerColor(these_colors[idx])
-                hist.SetMaximum(pad_top_y_axes_maximum)
-                AddHistogram( pad_top, hist, drawopt, markerStyle=these_markers[idx])
-                AddHistogram( pad_bot, h_hist, 'P', markerStyle=these_markers[idx])
-        else:
-            hist.SetLineColor(these_colors[idx])
-            hist.SetMarkerColor(these_colors[idx])
-            hist.SetMaximum(y_axes_maximum)
-            hist.SetMinimum(y_axes_minimum)
-            AddHistogram(canvas, hist, drawopt = drawopt, markerStyle=these_markers[idx])
-    
-    FormatCanvasAxes(canvas, XLabelSize=18, YLabelSize=18, XTitleOffset=0.87, YTitleOffset=1.5)
-    SetAxisLabels(canvas,xlabel,ylabel,rlabel)
-    return canvas
-     
 
 
 
-def GetHistogramFromMany( basepath, paths, keys ,  prefix='Loading...' , logger=None):
+def GetHistogramFromMany( basepath, paths, keys ,  prefix='Loading...'):
   
     from Gaugi import progressbar, expand_folders
     from copy import deepcopy     
@@ -154,7 +98,7 @@ def GetProfile( passed, tot, resize=None):
     return h
  
 
-def GetHistogramRootPaths( triggerList, removeInnefBefore=False, is_emulation=False, logger=None ):
+def GetHistogramRootPaths( triggerList, removeInnefBefore=False, is_emulation=False):
   plot_names = ['et','eta','mu']
   level_names = ['L1Calo','L2Calo','L2','EFCalo','HLT']
   levels_input = ['L1Calo','L1Calo','L1Calo','L2','EFCalo']
@@ -168,12 +112,10 @@ def GetHistogramRootPaths( triggerList, removeInnefBefore=False, is_emulation=Fa
   entries=len(triggerList)
   step = int(entries/100) if int(entries/100) > 0 else 1
   for trigItem in progressbar(triggerList, 'Making paths...'):
-    isL1 = True if trigItem.startswith('L1_') else False
-    these_level_names = ['L1Calo'] if isL1 else level_names
     ### Retrieve all paths
-    for idx ,level in enumerate(these_level_names):
+    for idx ,level in enumerate(level_names):
       for histname in plot_names:
-        if not isL1 and 'et' == histname and check_etthr_higher_than(trigItem,100):  histname='highet'
+        if 'et' == histname and check_etthr_higher_than(trigItem,100):  histname='highet'
         if is_emulation:
           histpath = 'HLT/Egamma/Expert/{TRIGGER}/Emulation/{LEVEL}/{HIST}'
         else:
@@ -189,13 +131,4 @@ def GetHistogramRootPaths( triggerList, removeInnefBefore=False, is_emulation=Fa
   # Loop over triggers
   return paths, keys
 
-
-# Fill in batch
-def FillHistogram(hist, x_values, y_values=None):
-  w = array.array( 'd', np.ones_like( x_values ) )
-  if y_values:
-    # Fill 2D histogram
-    hist.FillN( len(x_values), array.array('d',  x_values), array.array('d',  y_values) ,w)
-  else:
-    hist.FillN( len(x_values), array.array('d',  x_values),  w)
 
