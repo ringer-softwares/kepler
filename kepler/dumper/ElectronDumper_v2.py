@@ -1,5 +1,5 @@
 
-__all__ = ["ElectronDumper"]
+__all__ = ["ElectronDumper_v2"]
 
 
 from kepler.core import Dataframe as DataframeEnum 
@@ -22,7 +22,7 @@ from pprint import pprint
 #
 # Electron
 #
-class ElectronDumper( Algorithm ):
+class ElectronDumper_v2( Algorithm ):
 
 
   #
@@ -113,18 +113,37 @@ class ElectronDumper( Algorithm ):
     # Calo cluster
     #
     self.__event_label.extend( [
-                                'trig_EF_cl_et', # this is a list
+                                'trig_EF_cl_hascluster',
+                                'trig_EF_cl_et',
+                                'trig_EF_cl_eta',
+                                'trig_EF_cl_etaBE2',
+                                'trig_EF_cl_phi',
                                 ] )
 
     #
     # HLT electron
     #
     self.__event_label.extend( [       
-                                'trig_EF_el_et', # this is a list
-                                'trig_EF_el_lhtight', # this is a list
-                                'trig_EF_el_lhmedium', # this is a list
-                                'trig_EF_el_lhloose', # this is a list
-                                'trig_EF_el_lhvloose', # this is a list
+                                'trig_EF_el_et',
+                                'trig_EF_el_eta',
+                                'trig_EF_el_etaBE2',
+                                'trig_EF_el_phi',
+                                'trig_EF_el_rhad1',
+                                'trig_EF_el_rhad',
+                                'trig_EF_el_f3',
+                                'trig_EF_el_weta2',
+                                'trig_EF_el_rphi',
+                                'trig_EF_el_reta',
+                                'trig_EF_el_wtots1',
+                                'trig_EF_el_eratio',
+                                'trig_EF_el_f1',
+                                'trig_EF_el_deltaEta1',
+                                'trig_EF_el_deltaPhi2',
+                                'trig_EF_el_deltaPhi2Rescaled',
+                                'trig_EF_el_lhtight',
+                                'trig_EF_el_lhmedium',
+                                'trig_EF_el_lhloose',
+                                'trig_EF_el_lhvloose', 
                                 ] )
 
 
@@ -228,6 +247,7 @@ class ElectronDumper( Algorithm ):
     #
     # Fast electron features
     #
+    # Save only the closest fast track object cluster-trk
     fcElCont = context.getHandler("HLT__TrigElectronContainer" )
     hasFcTrack = True if fcElCont.size()>0 else False
     if hasFcTrack:
@@ -244,26 +264,76 @@ class ElectronDumper( Algorithm ):
       event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
 
 
+    # Precision step
+    # NOTE: Should be closest than offline object
+    elCont = context.getHandler( "ElectronContainer" )
+
+
+
     #
     # Calo Cluster
     #
+    # get the closest online-offline object
     clCont = context.getHandler("HLT__CaloClusterContainer")
-    event_row.append( [np.float32(cl.et()) for cl in clCont] )
+    hasCluster = True if clCont.size()>0 else False
+    if hasCluster:
+      clCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
+      event_row.append( True )
+      event_row.append( clCont.et() )
+      event_row.append( clCont.eta() )
+      event_row.append( clCont.etaBE2() )
+      event_row.append( clCont.phi() )
+    else:
+      event_row.extend( [False, -1, -1, -1, -1] )
+
 
     
     #
     # HLT electron
     #
     elCont = context.getHandler("HLT__ElectronContainer")
-    event_row.append([ np.float32(el.et()) for el in elCont])
+    hasCand = True if elCont.size()>0 else False
+    if hasCand:
+      elCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
+      event_row.append( True )
+      # Offline Shower shapes
+      event_row.append( elCont.et() )
+      event_row.append( elCont.eta() )
+      event_row.append( elCont.caloCluster().etaBE2())
+      event_row.append( elCont.phi() )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.Rhad1 ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.Rhad ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.f3 ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.weta2 ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.Rphi ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.Reta ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.wtots1 ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.Eratio ) )
+      event_row.append( elCont.showerShapeValue( EgammaParameters.f1 ) )
+
+      trkCont  = elCont.trackParticle()
+      if trkCont:
+        event_row.append( True )
+        event_row.append( elCont.deta1() )
+        event_row.append( elCont.dphi2() )
+        event_row.append( elCont.deltaPhiRescaled2() )
+
+
+      # Adding PID LH decisions for each WP
+      event_row.append( elCont.accept("trig_EF_el_lhtight")  )
+      event_row.append( elCont.accept("trig_EF_el_lhmedium") )
+      event_row.append( elCont.accept("trig_EF_el_lhloose")  )
+      event_row.append( elCont.accept("trig_EF_el_lhvloose") )
+
+    else:
+      event_row.extend( [False, -1, -1, -1, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
 
 
 
-    # Adding PID LH decisions for each WP
-    event_row.append([el.accept("trig_EF_el_lhtight") for el in elCont]  )
-    event_row.append([el.accept("trig_EF_el_lhmedium") for el in elCont] )
-    event_row.append([el.accept("trig_EF_el_lhloose") for el in elCont]  )
-    event_row.append([el.accept("trig_EF_el_lhvloose") for el in elCont] )
+ 
+
+  
+
 
 
     #
@@ -271,7 +341,6 @@ class ElectronDumper( Algorithm ):
     #
 
 
-    elCont = context.getHandler( "ElectronContainer" )
     trkCont  = elCont.trackParticle()
     hasTrack = True if trkCont.size()>0 else False
    
