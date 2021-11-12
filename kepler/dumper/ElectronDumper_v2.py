@@ -30,9 +30,9 @@ class ElectronDumper_v2( Algorithm ):
   #
   def __init__(self, output, etbins, etabins, target, **kw ):
     
-    Algorithm.__init__(self)
+    Algorithm.__init__(self, "")
 
-    declareProperty( self, kw, 'dump_rings', True)
+    declareProperty( self, kw, 'dumpRings', True)
 
     self.__target = target
     self.__etbins = etbins
@@ -124,6 +124,7 @@ class ElectronDumper_v2( Algorithm ):
     # HLT electron
     #
     self.__event_label.extend( [       
+                                'trig_EF_el_hascand',
                                 'trig_EF_el_et',
                                 'trig_EF_el_eta',
                                 'trig_EF_el_etaBE2',
@@ -137,6 +138,7 @@ class ElectronDumper_v2( Algorithm ):
                                 'trig_EF_el_wtots1',
                                 'trig_EF_el_eratio',
                                 'trig_EF_el_f1',
+                                'trig_EF_el_hastrack',
                                 'trig_EF_el_deltaEta1',
                                 'trig_EF_el_deltaPhi2',
                                 'trig_EF_el_deltaPhi2Rescaled',
@@ -291,49 +293,46 @@ class ElectronDumper_v2( Algorithm ):
     #
     # HLT electron
     #
-    elCont = context.getHandler("HLT__ElectronContainer")
-    hasCand = True if elCont.size()>0 else False
+    on_elCont = context.getHandler("HLT__ElectronContainer")
+    hasCand = True if on_elCont.size()>0 else False
     if hasCand:
-      elCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
-      event_row.append( True )
+      on_elCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
+      event_row.append( True ) #FIXME!
       # Offline Shower shapes
-      event_row.append( elCont.et() )
-      event_row.append( elCont.eta() )
-      event_row.append( elCont.caloCluster().etaBE2())
-      event_row.append( elCont.phi() )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.Rhad1 ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.Rhad ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.f3 ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.weta2 ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.Rphi ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.Reta ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.wtots1 ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.Eratio ) )
-      event_row.append( elCont.showerShapeValue( EgammaParameters.f1 ) )
+      event_row.append( on_elCont.et() )
+      event_row.append( on_elCont.eta() )
+      event_row.append( on_elCont.caloCluster().etaBE2())
+      event_row.append( on_elCont.phi() )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.Rhad1 ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.Rhad ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.f3 ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.weta2 ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.Rphi ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.Reta ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.wtots1 ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.Eratio ) )
+      event_row.append( on_elCont.showerShapeValue( EgammaParameters.f1 ) )
 
       trkCont  = elCont.trackParticle()
       if trkCont:
-        event_row.append( True )
+        event_row.append( True ) #FIXME
         event_row.append( elCont.deta1() )
         event_row.append( elCont.dphi2() )
         event_row.append( elCont.deltaPhiRescaled2() )
-
-
-      # Adding PID LH decisions for each WP
-      event_row.append( elCont.accept("trig_EF_el_lhtight")  )
-      event_row.append( elCont.accept("trig_EF_el_lhmedium") )
-      event_row.append( elCont.accept("trig_EF_el_lhloose")  )
-      event_row.append( elCont.accept("trig_EF_el_lhvloose") )
+      else:
+        event_row.append( [False, -1.0, -1.0, -1.0] )
 
     else:
-      event_row.extend( [False, -1, -1, -1, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
+      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, 
+                         -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
+                         -1.0, -1.0, False, -1.0, -1.0, -1.0
+                         ] )
 
-
-
- 
-
-  
-
+    # Adding PID LH decisions for each WP
+    event_row.append( on_elCont.accept("trig_EF_el_lhtight")  )
+    event_row.append( on_elCont.accept("trig_EF_el_lhmedium") )
+    event_row.append( on_elCont.accept("trig_EF_el_lhloose")  )
+    event_row.append( on_elCont.accept("trig_EF_el_lhvloose") )
 
 
     #
@@ -373,7 +372,8 @@ class ElectronDumper_v2( Algorithm ):
       event_row.append( elCont.deltaPhiRescaled2() )
       event_row.append( trkCont.DeltaPOverP() )
     else:
-      event_row.extend( [False, -1, -1, -1, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
+      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 
+                         -1.0, -1.0, -1.0, -1.0, -1.0] )
 
 
     # Adding Offline PID LH decisions

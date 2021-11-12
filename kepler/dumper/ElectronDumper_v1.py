@@ -1,5 +1,5 @@
 
-__all__ = ["ElectronDumper"]
+__all__ = ["ElectronDumper_v1"]
 
 
 from kepler.core import Dataframe as DataframeEnum 
@@ -22,7 +22,7 @@ from pprint import pprint
 #
 # Electron
 #
-class ElectronDumper( Algorithm ):
+class ElectronDumper_v1( Algorithm ):
 
 
   #

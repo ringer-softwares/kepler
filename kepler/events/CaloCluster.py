@@ -5,7 +5,7 @@ __all__ = ["CaloCluster"]
 from Gaugi import EDM
 from Gaugi import StatusCode
 from kepler.core import Dataframe as DataframeEnum
-
+import numpy as np
 
 class CaloCluster(EDM):
 
@@ -212,12 +212,12 @@ class CaloCluster(EDM):
 
   def setToBeClosestThan( self, eta, phi ):
     idx = 0; minDeltaR = 999
-    def deltaR( self, eta1, phi1, eta2, phi2 ):
+    def deltaR(  eta1, phi1, eta2, phi2 ):
       deta = abs( eta1 - eta2 )
       dphi = abs( phi1 - phi2 ) if abs(phi1 - phi2) < np.pi else (2*np.pi-abs(phi1-phi2))
       return np.sqrt( deta*deta + dphi*dphi )
     for trk in self:
-      dR = self.deltaR( eta, phi, self.eta(), self.phi() )
+      dR = deltaR( eta, phi, self.eta(), self.phi() )
       if dR < minDeltaR:
         minDeltaR = dR
         idx = self.getPos()

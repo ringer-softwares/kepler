@@ -99,8 +99,10 @@ class IsoDecorator:
         self.tool.initialize()
     def __call__(self, ctx):
         # online container can have more than one element
-        elCont = ctx.getHandler("HLT__ElectronContainer")
-        return [ (el.accept("trig_EF_el_lhtight") and self.tool.isolation(el)) for el in elCont]
+        on_elCont = ctx.getHandler("HLT__ElectronContainer")
+        elCont = ctx.getHandler("ElectronContainer")
+        on_elCont.setToBeClosestThan(elCont.eta(), elCont.phi())
+        return on_elCont.accept("trig_EF_el_lhtight") and self.tool.isolation(on_elCont)
 
 iso_decorator = IsoDecorator()
 
@@ -180,7 +182,7 @@ ToolSvc+=filter
 #
 # Electron dumper
 #
-from kepler.dumper import ElectronDumper
+from kepler.dumper import ElectronDumper_v2 as ElectronDumper
 output = args.outputFile.replace('.root','')
 
 et_bins = eval(eval(args.et_bins))
