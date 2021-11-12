@@ -26,7 +26,6 @@ class MergeNpz(Logger):
 
   def run( self, files , output):
 
-    print(files)
     output = ensure_extension(output,'npz')
 
     if len(files) == 1:

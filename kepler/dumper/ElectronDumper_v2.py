@@ -286,7 +286,7 @@ class ElectronDumper_v2( Algorithm ):
       event_row.append( clCont.etaBE2() )
       event_row.append( clCont.phi() )
     else:
-      event_row.extend( [False, -1, -1, -1, -1] )
+      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0] )
 
 
     
@@ -360,9 +360,9 @@ class ElectronDumper_v2( Algorithm ):
     # Offline track variables
     if hasTrack:
       event_row.append( hasTrack)
-      event_row.append( trkCont.numberOfBLayerHits() )
-      event_row.append( trkCont.numberOfPixelHits() )
-      event_row.append( trkCont.numberOfTRTHits() )
+      event_row.append( trkCont.numberOfBLayerHits() ) # int
+      event_row.append( trkCont.numberOfPixelHits() ) # int
+      event_row.append( trkCont.numberOfTRTHits() ) # int
       event_row.append( trkCont.d0() )
       event_row.append( trkCont.d0significance() )
       event_row.append( trkCont.eProbabilityHT() )
@@ -372,7 +372,7 @@ class ElectronDumper_v2( Algorithm ):
       event_row.append( elCont.deltaPhiRescaled2() )
       event_row.append( trkCont.DeltaPOverP() )
     else:
-      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 
+      event_row.extend( [False, -1, -1, -1, -1.0, -1.0, -1.0, 
                          -1.0, -1.0, -1.0, -1.0, -1.0] )
 
 
@@ -398,6 +398,9 @@ class ElectronDumper_v2( Algorithm ):
     for feature in self.__extra_features:
       passed = dec.accept(feature).getCutResult('Pass')
       event_row.append( passed )
+
+    if len(event_row) != len( self.__event_label ):
+      MSG_FATAL( "This event missing some column. We have some problem into the dumper code! please, verify it!")
 
 
     key = ('et%d_eta%d') % (etBinIdx, etaBinIdx)
