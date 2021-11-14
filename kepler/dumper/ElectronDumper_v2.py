@@ -322,17 +322,20 @@ class ElectronDumper_v2( Algorithm ):
       else:
         event_row.append( [False, -1.0, -1.0, -1.0] )
 
+
+      # Adding PID LH decisions for each WP
+      event_row.append( on_elCont.accept("trig_EF_el_lhtight")  )
+      event_row.append( on_elCont.accept("trig_EF_el_lhmedium") )
+      event_row.append( on_elCont.accept("trig_EF_el_lhloose")  )
+      event_row.append( on_elCont.accept("trig_EF_el_lhvloose") )
+
     else:
       event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, 
                          -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
-                         -1.0, -1.0, False, -1.0, -1.0, -1.0
-                         ] )
+                         -1.0, -1.0, False, -1.0, -1.0, -1.0,
+                         False, False, False, False] )
 
-    # Adding PID LH decisions for each WP
-    event_row.append( on_elCont.accept("trig_EF_el_lhtight")  )
-    event_row.append( on_elCont.accept("trig_EF_el_lhmedium") )
-    event_row.append( on_elCont.accept("trig_EF_el_lhloose")  )
-    event_row.append( on_elCont.accept("trig_EF_el_lhvloose") )
+
 
 
     #
