@@ -94,7 +94,7 @@ acc = ElectronLoop(  "EventATLASLoop",
 
 class IsoDecorator:
     def __init__(self):
-        from kepler.emulator.TrigEgammaPrecisionElectronHypoTool import configure
+        from kepler.emulator.hypos.TrigEgammaPrecisionElectronHypoTool import configure
         self.tool = configure('isolation', 'lhtight', 'ivarloose')
         self.tool.initialize()
     def __call__(self, ctx):

@@ -26,12 +26,13 @@ class ElectronSequence(Logger):
     #
     def __init__(self, trigger, 
                  L1Seed = None, 
+                 l2calo_etthr = None,
                  l2calo_column = None,
                  l2_column = None,
-                 hlt_column = None,
-                 l2calo_etthr = None,
                  efcalo_etthr = None,
-                 hlt_etthr = None ):
+                 hlt_etthr = None,
+                 hlt_column = None,
+                ):
 
         Logger.__init__(self)
 
@@ -74,7 +75,7 @@ class ElectronSequence(Logger):
             if etthr >= 0 and etthr < 12:
                 self.l2calo_column = 'trig_L2_cl_%s_et0to12' % (pidname)
             elif etthr >= 12 and etthr < 22:
-                self.l2calo_column = 'trig_L2_cl_%s_et12to22' % (pidname)
+                self.l2calo_column = 'trig_L2_cl_%s_et12to20' % (pidname)
             else: # etthr >= 22
                 self.l2calo_column = 'trig_L2_cl_%s_et22toInf' % (pidname)
 
@@ -103,6 +104,7 @@ class ElectronSequence(Logger):
             if iso: # add isolation suffix
                 self.hlt_column+='_'+iso
 
+        MSG_DEBUG(self, "Chain name: %s", self.trigger)
         pprint ( OrderedDict( {
                 'L1Seed' : self.L1Seed_column,
                 'L2Calo' : (self.l2calo_etthr, self.l2calo_column),
@@ -112,7 +114,9 @@ class ElectronSequence(Logger):
         }) )
 
 
-    def apply(self, df, col_name):
+    def apply(self, df):
+
+        col_name = self.trigger.replace('HLT_','')
 
         # append new columns into the dataframe
         df['L1Calo_'+col_name ] = False
@@ -121,51 +125,43 @@ class ElectronSequence(Logger):
         df['EFCalo_'+col_name ] = False
         df['HLT_'+col_name ]    = False
 
-        MSG_INFO(self, "Number of events   : %d", df.shape[0])
+        MSG_DEBUG(self, "Number of events   : %d", df.shape[0])
+
+        # copy some columns to not allocate too much memory
+        df_temp = df[[self.L1Seed_column, self.l2calo_column, 'trig_L2_cl_et', self.l2_column, 'trig_EF_cl_et', 'trig_EF_el_et', self.hlt_column]]
+
+
         # Filter by L1
-        df_temp = df.loc[df[self.L1Seed_column] == True]
+        df_temp = df_temp.loc[df_temp[self.L1Seed_column] == True]
         # store decisions
         df.at[df_temp.index, 'L1Calo_' + col_name] = True
+        MSG_DEBUG(self, "Approved by L1     : %d", df_temp.shape[0])
 
-        MSG_INFO(self, "Approved by L1     : %d", df_temp.shape[0])
+
         # Filter by L2Calo
-        df_temp = df_temp.loc[ (df_temp['trig_L2_cl_et'] > self.l2calo_etthr) & (df_temp[self.l2calo_column] == True)]
+        df_temp = df_temp.loc[ (df_temp['trig_L2_cl_et'] >= self.l2calo_etthr) & (df_temp[self.l2calo_column] == True)]
         # store decisions
         df.at[df_temp.index, 'L2Calo_' + col_name] = True
+        MSG_DEBUG(self, "Approved by L2Calo : %d", df_temp.shape[0])
 
-        MSG_INFO(self, "Approved by L2Calo : %d", df_temp.shape[0])
 
         # Filter L2 electron
         df_temp = df_temp.loc[ (df_temp[self.l2_column] == True) ]
         df.at[df_temp.index, 'L2_' + col_name] = True
-        MSG_INFO(self, "Approved by L2     : %d", df_temp.shape[0])
+        MSG_DEBUG(self, "Approved by L2     : %d", df_temp.shape[0])
 
 
-        # Filter EFCalo
-        def passed_by_efcalo( row, etthr ):
-            for et in row['trig_EF_cl_et']:
+        # Filter EF Calo
+        df_temp = df_temp.loc[ (df_temp['trig_EF_cl_et'] >= self.efcalo_etthr) ]
+        df.at[df_temp.index, 'EFCalo_' + col_name] = True
+        MSG_DEBUG(self, "Approved by EFCalo : %d", df_temp.shape[0])
 
-                if et > etthr:
-                    return True
-            return False
-
-        answer = df_temp.apply( lambda row: passed_by_efcalo(row, self.efcalo_etthr) , axis=1)
-        df.at[answer.index, 'EFCalo_' + col_name] = answer
-        df_temp = df.loc[df['EFCalo_'+col_name] == True]
-
-        MSG_INFO(self, "Approved by EFCalo : %d", df_temp.shape[0])
 
         # Filter HLT
-        def passed_by_hlt( row, etthr, column ):
-            for et in row['trig_EF_el_et']:
-                if et > etthr: #and row[column][idx]==True:
-                    return True
-            return False
-        
-        answer = df_temp.apply( lambda row: passed_by_hlt(row, self.hlt_etthr, self.hlt_column) , axis=1)
-        df.at[answer.index, 'HLT_' + col_name] = answer
-        df_temp = df.loc[df['HLT_'+col_name]==True]
+        df_temp = df_temp.loc[ (df_temp[self.hlt_column] == True) & (df_temp['trig_EF_el_et'] >= self.hlt_etthr) ]
+        df.at[df_temp.index, 'HLT_' + col_name] = True
+        MSG_DEBUG(self, "Approved by HLT    : %d", df_temp.shape[0])
 
-        MSG_INFO(self, "Approved by HLT    : %d", df_temp.shape[0])
+
 
 

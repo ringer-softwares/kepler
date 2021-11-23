@@ -19,7 +19,7 @@ def install_commom_features_for_electron_dump():
   hypos = []
 
   # configure L1 items
-  from kepler.emulator.TrigEgammaL1CaloHypoTool import configure
+  from kepler.emulator.hypos.TrigEgammaL1CaloHypoTool import configure
   hypos = [
             configure("L1_EM3"     , "L1_EM3"     ),
             configure("L1_EM7"     , "L1_EM7"     ),
@@ -34,7 +34,7 @@ def install_commom_features_for_electron_dump():
 
 
   # configure T2Calo for each ET bin used to emulated the HLT only
-  from kepler.emulator.TrigEgammaFastCaloHypoTool import configure
+  from kepler.emulator.hypos.TrigEgammaFastCaloHypoTool import configure
   for pidname in ['lhvloose', 'lhloose','lhmedium', 'lhtight']:
     # T2Calo
     hypos+= [
@@ -45,7 +45,7 @@ def install_commom_features_for_electron_dump():
 
 
   # configure L2 electron decisions for each bin
-  from kepler.emulator.TrigEgammaFastElectronHypoTool import configure
+  from kepler.emulator.hypos.TrigEgammaFastElectronHypoTool import configure
   hypos += [
             configure('trig_L2_el_cut_pt0to15'   , 0 ),
             configure('trig_L2_el_cut_pt15to20'  , 15),
@@ -55,13 +55,6 @@ def install_commom_features_for_electron_dump():
 
 
   return attach(hypos)
-
-
-
-
-
-
-
 
 
 

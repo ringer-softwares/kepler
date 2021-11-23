@@ -1,14 +1,12 @@
 
-__all__ = ['load', 'drop_ring_columns']
 
-from Gaugi import Logger
-from Gaugi.macros import *
-from Gaugi import GeV
+
+__all__ = ['load', 'load_in_loop']
+
+from Gaugi import progressbar
 
 import pandas as pd
 import numpy as np
-
-from kepler.utils import load_ringer_models
 import gc
 
 
@@ -39,19 +37,20 @@ def load( path ):
     gc.collect()
     return df
 
-#
-# Helper to drop all rings
-#
-def drop_ring_columns( df , rings=100):
-    '''
-    This function is a shortcut to drop the rings column from a given dataframe.
+
+def load_in_loop( paths, drop_columns=[], decorators=[], chains=[]):
+
+    tables = []
+        
+    for path in progressbar( paths, prefix='Reading files...'):
+        df = load( path )
+        for decorator in decorators:
+            decorator.apply(df) 
+        for column in drop_columns:
+            df.drop( column, axis=1, inplace=True )    
+        for chain in chains:
+            chain.apply(df)
+        tables.append(df)
+
+    return pd.concat(tables).reset_index(drop=True)
     
-    Arguments:
-    df (pd.DataFrame) - a pandas DataFrame that has rings;
-    rings (int) - the number of rings that want remove from DataFrame.
-    '''
-    if type(rings) is int:
-        rings = [idx for idx in range(rings)]
-    df.drop( ['trig_L2_cl_ring_%d'%i for i in rings], axis=1, inplace=True )
-
-
