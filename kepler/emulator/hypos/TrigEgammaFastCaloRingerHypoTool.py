@@ -168,6 +168,10 @@ def load_ringer_models( configPath ):
    
     number_of_thresholds = env.GetValue("Threshold__size", 0)
     max_avgmu = treat_float( env, "Threshold__MaxAverageMu" )
+    try:
+      min_avgmu = treat_float( env, "Threshold__MinAverageMu" )
+    except: # NOTE: this should be remove for future
+      min_avgmu = [16]*len(number_of_thresholds)
     etmin_list = treat_float( env, 'Threshold__etmin' )
     etmax_list = treat_float( env, 'Threshold__etmax' )
     etamin_list = treat_float( env, 'Threshold__etamin' )
@@ -194,7 +198,7 @@ def load_ringer_models( configPath ):
       if etaBinIdx > len(etabins)-2:
         etBinIdx +=1
         etaBinIdx = 0 
-      d['thresholds'][etBinIdx][etaBinIdx] = {'slope':slope, 'offset':offsets[idx] }
+      d['thresholds'][etBinIdx][etaBinIdx] = {'slope':slope, 'offset':offsets[idx] , 'min_avgmu': min_avgmu[idx], 'max_avgmu': max_avgmu[idx]}
       etaBinIdx+=1
 
     return d, version

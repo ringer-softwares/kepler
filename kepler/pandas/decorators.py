@@ -41,9 +41,10 @@ def create_ringer_v8_decorators_official( column = 'ringer_v8_{pidname}'):
 
 
 
-def create_ringer_v8_decorators( column = 'ringer_v8_{pidname}'):
+def create_ringer_v8_decorators( column = 'ringer_v8_{pidname}', basepath=None):
 
-    basepath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20211114_v8'
+    if not basepath:
+        basepath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20211114_v8'
     
     def generator( df ):
         columns= ['trig_L2_cl_ring_%d'%i for i in range(100)]
@@ -196,6 +197,12 @@ class RingerDecorator(Logger):
                     c = self.__tuning['thresholds'][et_bin][eta_bin]
                     output = df_temp[self.column+'_output'].values 
                     thresholds = (df_temp['avgmu'].values * c['slope'] + c['offset'])
+                    min_avgmu = c['min_avgmu']
+                    max_avgmu = c['max_avgmu']
+                    avgmu = df_temp['avgmu'].values
+                    avgmu[avgmu < min_avgmu ] = min_avgmu
+                    avgmu[avgmu > max_avgmu] = max_avgmu
+                    thresholds = avgmu * c['slope'] + c['offset']
                     df.at[df_temp.index, self.column] = np.greater( output, thresholds )
         #df.drop('etBinIdx')
 
