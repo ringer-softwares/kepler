@@ -44,7 +44,7 @@ def create_ringer_v8_decorators_official( column = 'ringer_v8_{pidname}'):
 def create_ringer_v8_decorators( column = 'ringer_v8_{pidname}', basepath=None):
 
     if not basepath:
-        basepath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20211114_v8'
+        basepath = os.environ['RINGER_CALIBPATH'] + '/models/Zee/TrigL2_20211216_v8'
     
     def generator( df ):
         columns= ['trig_L2_cl_ring_%d'%i for i in range(100)]

@@ -39,7 +39,7 @@ def install_commom_features_for_electron_dump():
     # T2Calo
     hypos+= [
             configure('trig_L2_cl_%s_et0to12'%pidname   , 0  , pidname),
-            configure('trig_L2_cl_%s_et12to20'%pidname  , 12 , pidname),
+            configure('trig_L2_cl_%s_et12to22'%pidname  , 12 , pidname),
             configure('trig_L2_cl_%s_et22toInf'%pidname , 22 , pidname),
     ]
 

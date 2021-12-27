@@ -1,13 +1,21 @@
 
 
 
-__all__ = ['load', 'load_in_loop']
+__all__ = ['load', 'load_in_loop', 'load_hdf', 'save_hdf']
 
 from Gaugi import progressbar
 
 import pandas as pd
 import numpy as np
 import gc
+
+
+def save_hdf( df , oname):
+    df.to_hdf(oname, key='df', mode='w')
+
+def load_hdf( iname ):
+    return pd.read_hdf(iname)
+
 
 
 #
@@ -43,7 +51,7 @@ def load_in_loop( paths, drop_columns=[], decorators=[], chains=[]):
     tables = []
         
     for path in progressbar( paths, prefix='Reading files...'):
-        df = load( path )
+        df = load_hdf( path )
         for decorator in decorators:
             decorator.apply(df) 
         for column in drop_columns:
