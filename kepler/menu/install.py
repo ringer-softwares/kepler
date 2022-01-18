@@ -57,6 +57,29 @@ def install_commom_features_for_electron_dump():
   return attach(hypos)
 
 
+###########################################################
+##################   J/Psi v1 tuning    ###################
+###########################################################
+def install_Zee_ringer_v6():
+
+  from kepler.emulator import RingerSelectorTool
+  calibpath = os.environ['RINGER_CALIBPATH'] + '/models/Jpsi/TrigL2_20220111_v1'
+
+  def getPatterns( context ):
+    def norm1( data ):
+      return (data/abs(sum(data))).reshape((1,100))
+    fc = context.getHandler("HLT__TrigEMClusterContainer")
+    rings = norm1( fc.ringsE() )
+    return [rings]
+
+  hypos = [
+      RingerSelectorTool("T0HLTElectronRingerTight_v1"    ,getPatterns,ConfigFile = calibpath+'/ElectronRingerTightTriggerConfig.conf'    ),
+      RingerSelectorTool("T0HLTElectronRingerMedium_v1"   ,getPatterns,ConfigFile = calibpath+'/ElectronRingerMediumTriggerConfig.conf'   ),
+      RingerSelectorTool("T0HLTElectronRingerLoose_v1"    ,getPatterns,ConfigFile = calibpath+'/ElectronRingerLooseTriggerConfig.conf'    ),
+      RingerSelectorTool("T0HLTElectronRingerVeryLoose_v1",getPatterns,ConfigFile = calibpath+'/ElectronRingerVeryLooseTriggerConfig.conf'),
+    ]
+
+  return attach(hypos)
 
 ###########################################################
 ################## Official 2017 tuning ###################
