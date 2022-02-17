@@ -14,7 +14,7 @@ import pandas as pd
 import numpy as np
 import os
 
-from kepler.emulator.hypos import load_ringer_models
+from kepler.emulator.hypos import load_models
 
 
 def create_ringer_v8_decorators_official( column = 'ringer_v8_{pidname}'):
@@ -118,7 +118,7 @@ class RingerDecorator(Logger):
                   et_column = 'trig_L2_cl_et', 
                   eta_column = 'trig_L2_cl_eta',
                   batch_size = 1024,
-                  verbose=False):
+                  verbose=True):
 
         Logger.__init__(self)
         self.path = path
@@ -138,40 +138,38 @@ class RingerDecorator(Logger):
     #
     def configure(self):
         MSG_INFO(self, 'Reading... %s', self.path)
-        self.__tuning, _ = load_ringer_models(self.path)
-
+        self.__core, _ = load_models(self.path)
+        self.etbins = self.__core['model_etBins']
+        self.etabins = self.__core['model_etaBins']
+        self.etbins_thr = self.__core['threshold_etBins']
+        self.etabins_thr = self.__core['threshold_etaBins']
+        self.models = self.__core['models']
+        self.thresholds = self.__core['thresholds']
 
     #
     # Decorate the pandas dataframe with output and decision and store into self.column
     #
-    def apply(self, df, batch_size=1024):
+    def apply(self, df, batch_size=2048):
 
         df[self.column+'_output'] = np.nan
         df[self.column] = np.nan
 
-        et_bins = self.__tuning['model_etBins']
-        eta_bins = self.__tuning['model_etaBins']
-   
         # Get L2 values
         et = df[self.et_column].values / GeV
         eta = abs(df[self.eta_column].values)
-
-        # Get the et/eta bin
-        etBinIdx = np.digitize( et, et_bins, right=False) - 1
-        etaBinIdx = np.digitize( eta, eta_bins, right=False) - 1
-
-        df['etBinIdx'] = etBinIdx
-        df['etaBinIdx'] = etaBinIdx
+  
+        df['et_bin'] = np.digitize( et, self.etbins, right=False) - 1
+        df['eta_bin'] = np.digitize( eta, self.etabins, right=False) - 1
 
         # Propagate the input and append the output into the dataframe
-        for et_bin in df['etBinIdx'].unique():
-            for eta_bin in df['etaBinIdx'].unique():
-                df_temp = df.loc[ (df['etBinIdx'] == et_bin) & (df['etaBinIdx'] == eta_bin) ]
-                if df_temp.shape[0] > 0:
-                    MSG_DEBUG(self, 'Propagate for bin (%d, %d)', et_bin, eta_bin) 
-                    model = self.__tuning['models'][et_bin][eta_bin]
-                    output = model.predict(self.generator(df_temp), verbose=self.verbose, batch_size=self.batch_size)
-                    df.at[df_temp.index, self.column+'_output'] = output
+        for et_bin in df['et_bin'].unique():
+            for eta_bin in df['eta_bin'].unique():
+                index = df.loc[ (df['et_bin'] == et_bin) & (df['eta_bin'] == eta_bin) ].index
+                if len(index)>0:
+                    model = self.models[et_bin][eta_bin]
+                    output = model.predict(self.generator(df.loc[ (df['et_bin'] == et_bin) & (df['eta_bin'] == eta_bin) ]), 
+                                           verbose=0, batch_size=self.batch_size)
+                    df.at[index, self.column+'_output'] = output
 
         if df[self.column+'_output'].isnull().sum():
             MSG_WARNING(self, 'There is nan values into the %s_output column. Please check!', self.column)
@@ -179,35 +177,32 @@ class RingerDecorator(Logger):
         #
         # Now lets take the decision using the output
         #
-        et_bins = self.__tuning['threshold_etBins']
-        eta_bins = self.__tuning['threshold_etaBins']
-        # Get the et/eta bin
-        etBinIdx = np.digitize( et, et_bins, right=False) - 1
-        etaBinIdx = np.digitize( eta, eta_bins, right=False) - 1
 
-        df['etBinIdx'] = etBinIdx
-        df['etaBinIdx'] = etaBinIdx
+        df['et_bin'] = np.digitize( et, self.etbins_thr, right=False) - 1
+        df['eta_bin'] = np.digitize( eta, self.etabins_thr, right=False) - 1
 
         # Take the decision
-        for et_bin in df['etBinIdx'].unique():
-            for eta_bin in df['etaBinIdx'].unique():
-                df_temp = df.loc[ (df['etBinIdx'] == et_bin) & (df['etaBinIdx'] == eta_bin) ]
-                if df_temp.shape[0] > 0:
-                    MSG_DEBUG(self, 'Decide for bin (%d, %d)', et_bin, eta_bin) 
-                    c = self.__tuning['thresholds'][et_bin][eta_bin]
-                    output = df_temp[self.column+'_output'].values 
-                    thresholds = (df_temp['avgmu'].values * c['slope'] + c['offset'])
-                    min_avgmu = c['min_avgmu']
-                    max_avgmu = c['max_avgmu']
-                    avgmu = df_temp['avgmu'].values
+        for et_bin in df['et_bin'].unique():
+            for eta_bin in df['eta_bin'].unique():
+                df_temp = df.loc[ (df['et_bin'] == et_bin) & (df['eta_bin'] == eta_bin) ]
+                if len(df_temp)>0:
+                    thr       = self.thresholds[et_bin][eta_bin]
+                    output    = df_temp[self.column+'_output'].values
+                    avgmu     = df_temp['avgmu'].values
+                    min_avgmu = thr['min_avgmu']
+                    max_avgmu = thr['max_avgmu']
                     avgmu[avgmu < min_avgmu ] = min_avgmu
-                    avgmu[avgmu > max_avgmu] = max_avgmu
-                    thresholds = avgmu * c['slope'] + c['offset']
-                    df.at[df_temp.index, self.column] = np.greater( output, thresholds )
-        #df.drop('etBinIdx')
+                    avgmu[avgmu > max_avgmu]  = max_avgmu
+                    df.at[df_temp.index, self.column] = np.greater( output, (avgmu * thr['slope'] + thr['offset']) )
+
 
         if df[self.column].isnull().sum():
             MSG_WARNING(self, 'There is nan values into the %s_output column. Please check!', self.column)
 
         # drop temp columns
-        df.drop(['etBinIdx', 'etaBinIdx'], axis=1, inplace=True)
+        df.drop(['et_bin', 'eta_bin'], axis=1, inplace=True)
+ 
+
+
+
+

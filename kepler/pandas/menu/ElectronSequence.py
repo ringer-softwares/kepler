@@ -12,6 +12,8 @@ from kepler.menu import get_chain_dict
 
 from collections import OrderedDict
 from pprint import pprint
+from pandarallel import pandarallel
+pandarallel.initialize()
 
 
 #
@@ -73,11 +75,11 @@ class ElectronSequence(Logger):
         # configure as noringer version
         if not self.l2calo_column or 'noringer' in self.trigger:
             if etthr >= 0 and etthr < 12:
-                self.l2calo_column = 'trig_L2_cl_%s_et0to12' % (pidname)
+                self.l2calo_column = 'trig_L2_cl_%s_et0to12' % (pidname.replace('lh',''))
             elif etthr >= 12 and etthr < 22:
-                self.l2calo_column = 'trig_L2_cl_%s_et12to20' % (pidname)
+                self.l2calo_column = 'trig_L2_cl_%s_et12to22' % (pidname.replace('lh',''))
             else: # etthr >= 22
-                self.l2calo_column = 'trig_L2_cl_%s_et22toInf' % (pidname)
+                self.l2calo_column = 'trig_L2_cl_%s_et22toInf' % (pidname.replace('lh',''))
 
 
         # configure fast electron step
@@ -104,7 +106,7 @@ class ElectronSequence(Logger):
             if iso: # add isolation suffix
                 self.hlt_column+='_'+iso
 
-        MSG_DEBUG(self, "Chain name: %s", self.trigger)
+        #MSG_DEBUG(self, "Chain name: %s", self.trigger)
         pprint ( OrderedDict( {
                 'L1Seed' : self.L1Seed_column,
                 'L2Calo' : (self.l2calo_etthr, self.l2calo_column),
@@ -112,6 +114,23 @@ class ElectronSequence(Logger):
                 'EFCalo' : self.efcalo_etthr,
                 'HLT'    : (self.hlt_etthr, self.hlt_column)
         }) )
+
+
+    def __apply(self, row):
+        l1calo_passed=False; l2calo_passed=False; l2_passed=False; efcalo_passed=False; hlt_passed=False
+        if row[self.L1Seed_column]:
+            l1calo_passed=True
+            if (row['trig_L2_cl_et'] >= self.l2calo_etthr) and (row[self.l2calo_column] == True):
+                l2calo_passed=True
+                if row[self.l2_column]:
+                    l2_passed=True
+                    if row['trig_EF_cl_et'] >= self.efcalo_etthr:
+                        efcalo_passed=True
+                        if row[self.hlt_column] and (row['trig_EF_el_et'] >= self.hlt_etthr):
+                            hlt_passed=True
+        return l1calo_passed,l2calo_passed,l2_passed,efcalo_passed,hlt_passed
+     
+
 
 
     def apply(self, df):
@@ -128,7 +147,8 @@ class ElectronSequence(Logger):
         MSG_DEBUG(self, "Number of events   : %d", df.shape[0])
 
         # copy some columns to not allocate too much memory
-        df_temp = df[[self.L1Seed_column, self.l2calo_column, 'trig_L2_cl_et', self.l2_column, 'trig_EF_cl_et', 'trig_EF_el_et', self.hlt_column]]
+        df_temp = df[[self.L1Seed_column, self.l2calo_column, 'trig_L2_cl_et', self.l2_column, 
+                     'trig_EF_cl_et', 'trig_EF_el_et', self.hlt_column]]
 
 
         # Filter by L1
@@ -161,7 +181,3 @@ class ElectronSequence(Logger):
         df_temp = df_temp.loc[ (df_temp[self.hlt_column] == True) & (df_temp['trig_EF_el_et'] >= self.hlt_etthr) ]
         df.at[df_temp.index, 'HLT_' + col_name] = True
         MSG_DEBUG(self, "Approved by HLT    : %d", df_temp.shape[0])
-
-
-
-

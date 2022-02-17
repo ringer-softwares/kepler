@@ -114,9 +114,9 @@ RUN pip3 install --no-cache-dir \
     pickle5 \
     tqdm \
     twine \
-    atlas-mpl-style 
+    atlas-mpl-style  
 
-
+RUN pip install wandb
 
 WORKDIR /
 COPY setup_root.sh .

@@ -1,5 +1,5 @@
 
-__all__ = ["TrigEgammaFastCaloRingerHypoTool", "RingerSelectorTool", "load_ringer_models"]
+__all__ = ["TrigEgammaFastCaloRingerHypoTool", "RingerSelectorTool", "load_models"]
 
 from Gaugi.macros import *
 from Gaugi import Algorithm
@@ -43,7 +43,7 @@ class RingerSelectorTool(Algorithm):
 
     if not self.ConfigPath:
       MSG_FATAL(self, "You shoul pass some path to config path property.")
-    self.__tuning, version = load_ringer_models(self.ConfigPath)
+    self.__tuning, version = load_models(self.ConfigPath)
     MSG_INFO( self, "Tuning version: %s" , version )
     MSG_INFO( self, "Loaded %d models for inference." , len(self.__model))
     MSG_INFO( self, "Loaded %d threshold for decision" , len(self.__tuning))
@@ -110,7 +110,7 @@ class RingerSelectorTool(Algorithm):
 #
 # Load all ringer models from athena format
 #
-def load_ringer_models( configPath ):
+def load_models( configPath ):
     
 
     basepath = '/'.join(configPath.split('/')[:-1])
