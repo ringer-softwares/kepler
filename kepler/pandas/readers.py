@@ -40,6 +40,9 @@ def load( path ):
     df = df[d['ordered_features']]
     # add the target information
     df['target'] = d['target']
+    if 'extra_features' in d.keys():
+        aux_df = pd.DataFrame(data=d['extra_data'], columns=d['extra_features'])
+        df = pd.concat([df, aux_df], axis=1)
     # remove the list of DataFrame and collect into garbage collector
     del df_list, d
     gc.collect()
