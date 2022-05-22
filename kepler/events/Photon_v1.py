@@ -1,18 +1,13 @@
 
-__all__ = ['Photon', 'EgammaParameters', 'PhotonPid']
+__all__ = ['Photon_v1', 'EgammaParameters']
 
 
 from Gaugi import EDM
 from Gaugi import StatusCode, EnumStringification
 from Gaugi import stdvector2list
-from kepler.core import Dataframe as DataframeEnum
 import math
 
-class PhotonPid(EnumStringification):
 
-      Tight    = 0
-      Medium   = 1
-      Loose    = 2
 
 class EgammaParameters(EnumStringification):
 
@@ -122,10 +117,9 @@ class EgammaParameters(EnumStringification):
 
 
 
-class Photon(EDM):
+class Photon_v1(EDM):
 
-  __eventBranches = {
-        'Photon_v1':{'Photon':[ 'ph_hasCalo',
+  __eventBranches = {'Photon':[ 'ph_hasCalo',
                               'ph_hasTrack',
                               'ph_e',
                               'ph_et',
@@ -220,7 +214,6 @@ class Photon(EDM):
                                     'mc_isPhoton',
                                     ]
                                     }
-                  }
 
   def __init__(self):
     EDM.__init__(self)
@@ -230,77 +223,58 @@ class Photon(EDM):
     """
       Initalize all branches
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      self.link( self.__eventBranches["Photon_v1"]["HLT__Photon"] if self._is_hlt else self.__eventBranches["Photon_v1"]["Photon"] )
-      return StatusCode.SUCCESS
-    else:
-      self._logger.warning( "Can not initialize the Photon object. Dataframe not available." )
-      return StatusCode.FAILURE
+    self.link( self.__eventBranches["HLT__Photon"] if self._is_hlt else self.__eventBranches["Photon"] )
+    return StatusCode.SUCCESS
+    
 
 
   def et(self):
     """
       Retrieve the Et information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      eta = self.caloCluster().etaBE2()
-      return (self.caloCluster().energy()/math.cosh(eta))
-    else:
-      self._logger.warning("Impossible to retrieve the value of Et.")
-      return -999
+    eta = self.caloCluster().etaBE2()
+    return (self.caloCluster().energy()/math.cosh(eta))
+
 
   def eta(self):
     """
       Retrieve the Eta information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_eta[self.getPos()]
-      else:
-        return self._event.ph_eta
+    if self._is_hlt:
+      return self._event.trig_EF_ph_eta[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of Eta. Unknow dataframe.")
-      return -999
+      return self._event.ph_eta
+
 
   def phi(self):
     """
       Retrieve the Phi information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_phi[self.getPos()]
-      else:
-        return self._event.ph_phi
+    if self._is_hlt:
+      return self._event.trig_EF_ph_phi[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of Phi. Unknow dataframe.")
-      return -999
+      return self._event.ph_phi
+ 
 
   def reta(self):
     """
       Retrieve the Reta information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_Reta[self.getPos()]
-      else:
-        return self._event.ph_Reta
+    if self._is_hlt:
+      return self._event.trig_EF_ph_Reta[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of Reta. Unknow dataframe")
-      return -999
+      return self._event.ph_Reta
+
 
   # shower shape
   def eratio(self):
     """
       Retrieve the eratio information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_Eratio[self.getPos()]
-      else:
-        return self._event.ph_Eratio
+    if self._is_hlt:
+      return self._event.trig_EF_ph_Eratio[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of eratio. Unknow dataframe")
-      return -999
+      return self._event.ph_Eratio
 
 
   # shower shape
@@ -308,29 +282,21 @@ class Photon(EDM):
     """
       Retrieve the weta1 information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_weta1[self.getPos()]
-      else:
-        return self._event.ph_weta1
+    if self._is_hlt:
+      return self._event.trig_EF_ph_weta1[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of weta1. Unknow dataframe")
-      return -999
+      return self._event.ph_weta1
+
 
   # shower shape
   def weta2(self):
     """
       Retrieve the weta2 information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_weta2[self.getPos()]
-      else:
-        return self._event.ph_weta2
+    if self._is_hlt:
+      return self._event.trig_EF_ph_weta2[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of weta2. Unknow dataframe")
-      return -999
-
+      return self._event.ph_weta2
 
 
   # shower shape
@@ -338,29 +304,21 @@ class Photon(EDM):
     """
       Retrieve the rhad information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_Rhad[self.getPos()]
-      else:
-        return self._event.ph_Rhad
+    if self._is_hlt:
+      return self._event.trig_EF_ph_Rhad[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of rhad. Unknow dataframe")
-      return -999
+      return self._event.ph_Rhad
+ 
 
   # shower shape
   def rhad1(self):
     """
       Retrieve the rhad1 information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_Rhad1[self.getPos()]
-      else:
-        return self._event.ph_Rhad1
+    if self._is_hlt:
+      return self._event.trig_EF_ph_Rhad1[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of rhad1. Unknow dataframe")
-      return -999
-
+      return self._event.ph_Rhad1
 
 
   # shower shape
@@ -368,75 +326,57 @@ class Photon(EDM):
     """
       Retrieve the rphi information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_Rphi[self.getPos()]
-      else:
-        return self._event.ph_Rphi
+    if self._is_hlt:
+      return self._event.trig_EF_ph_Rphi[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of rphi. Unknow dataframe")
-      return -999
+      return self._event.ph_Rphi
+
 
   # shower shape
   def f1(self):
     """
       Retrieve the f1 information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_f1[self.getPos()]
-      else:
-        return self._event.ph_f1
+    if self._is_hlt:
+      return self._event.trig_EF_ph_f1[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of f1. Unknow dataframe")
-      return -999
+      return self._event.ph_f1
+
 
   # shower shape
   def f3(self):
     """
       Retrieve the f3 information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_f3[self.getPos()]
-      else:
-        return self._event.ph_f3
+    if self._is_hlt:
+      return self._event.trig_EF_ph_f3[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of f3. Unknow dataframe")
-      return -999
+      return self._event.ph_f3
+
 
   # shower shape
   def wtots1(self):
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_wtots1[self.getPos()]
-      else:
-        return self._event.ph_wtots1
+    if self._is_hlt:
+      return self._event.trig_EF_ph_wtots1[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of wstot. Unknow dataframe")
-      return -999
+      return self._event.ph_wtots1
+   
 
   # shower shape
   def e277(self):
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_e277[self.getPos()]
-      else:
-        return self._event.ph_e277
+    if self._is_hlt:
+      return self._event.trig_EF_ph_e277[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of e277. Unknow dataframe")
-      return -999
+      return self._event.ph_e277
+
 
   # shower shape
   def deltaE(self):
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_ph_deltaE[self.getPos()]
-      else:
-        return self._event.ph_deltaE
+    if self._is_hlt:
+      return self._event.trig_EF_ph_deltaE[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of deltaE. Unknow dataframe")
-      return -999
+      return self._event.ph_deltaE
+  
 
 
   def showerShapeValue( self, showerShapeType ):
@@ -493,58 +433,44 @@ class Photon(EDM):
     """
     # Retrieve event info to get the pileup information
     eventInfo  = self.retrieve('EventInfoContainer')
-    if self._dataframe is DataframeEnum.Photon_v1:
-      return eventInfo.avgmu()
-    else:
-      self._logger.warning("Impossible to retrieve the value of pileup. Unknow dataframe")
-      return -999
+    return eventInfo.avgmu()
 
 
   def ringsE(self):
     """
       Retrieve the Ringer Rings information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        self._logger.warning("Ringer rings information not available in HLT Photon object.")
-        return -999
-      else:
-        return self._event.ph_ringsE
-    else:
-      self._logger.warning("Impossible to retrieve the value of ringer rings. Unknow dataframe.")
+    if self._is_hlt:
+      self._logger.warning("Ringer rings information not available in HLT Photon object.")
       return -999
+    else:
+      return self._event.ph_ringsE
+    
 
 
   # Check if this object has rings
   def isGoodRinger(self):
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        self._logger.warning("Ringer rings information not available in HLT Electron object.")
-        return False
-      else:
-        rings = stdvector2list(self._event.ph_ringsE)
-        return True if len(rings)!=0 else False
-    else:
-      self._logger.warning("Impossible to retrieve the value of ringer rings. Unknow dataframe.")
+    if self._is_hlt:
+      self._logger.warning("Ringer rings information not available in HLT Electron object.")
       return False
-
+    else:
+      rings = stdvector2list(self._event.ph_ringsE)
+      return True if len(rings)!=0 else False
+    
 
   def size(self):
     """
       Retrieve the electro container size
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      if self._is_hlt:
-        return self.event.trig_EF_ph_et.size()
-      else:
-        return 1
+    if self._is_hlt:
+      return self.event.trig_EF_ph_et.size()
     else:
-      self._logger.warning("Impossible to retrieve the electron container size. Unknow dataframe")
-      return 0
-
+      return 1
+ 
 
   def empty(self):
     return False if self.size()>0 else True
+
 
   def __iter__(self):
     self.setPos(-1) # force to be -1
@@ -559,48 +485,37 @@ class Photon(EDM):
       Retrieve the CaloCluster python object into the Store Event
       For now, this is only available into the PhysVal dataframe.
     """
-    if self._dataframe is DataframeEnum.Photon_v1:
-      # The electron object is empty
-      if self.empty():
-        return None
-      elif self._is_hlt:
-        if self._event.trig_EF_ph_hasCalo[self.getPos()]:
-          cluster = self.getContext().getHandler('HLT__CaloClusterContainer')
-          cluster.setPos(self.getPos())
-          return cluster
-        else:
-          return None
-      else:
-        if self._event.ph_hasCalo:
-          return self.getContext().getHandler('CaloClusterContainer')
-        else:
-          return None
-    else:
-      self._logger.warning("Impossible to retrieve the caloCluster object. Unknow dataframe")
+    # The electron object is empty
+    if self.empty():
       return None
-
+    elif self._is_hlt:
+      if self._event.trig_EF_ph_hasCalo[self.getPos()]:
+        cluster = self.getContext().getHandler('HLT__CaloClusterContainer')
+        cluster.setPos(self.getPos())
+        return cluster
+      else:
+        return None
+    else:
+      if self._event.ph_hasCalo:
+        return self.getContext().getHandler('CaloClusterContainer')
+      else:
+        return None
+    
 
   def accept( self,  pidname ):
-
-    if self._dataframe is DataframeEnum.Photon_v1:
-      # Dictionary to acess the physval dataframe
-      if pidname in self.__eventBranches['Photon_v1']['HLT__Photon'] and self._is_hlt:
-        # the default selector branches is a vector
-        return bool(getattr(self._event, pidname)[self.getPos()]) if getattr(self._event, pidname).size()>0 else False
-
-      elif pidname in self.__eventBranches['Photon_v1']['Photon'] and not self._is_hlt:
-        return bool(getattr(self._event, pidname))
-      elif pidname in self.decorations():
-        return bool(self.getDecor(pidname))
-      else:
-        return False
+    # Dictionary to acess the physval dataframe
+    if pidname in self.__eventBranches['Photon_v1']['HLT__Photon'] and self._is_hlt:
+      # the default selector branches is a vector
+      return bool(getattr(self._event, pidname)[self.getPos()]) if getattr(self._event, pidname).size()>0 else False
+    elif pidname in self.__eventBranches['Photon_v1']['Photon'] and not self._is_hlt:
+      return bool(getattr(self._event, pidname))
+    elif pidname in self.decorations():
+      return bool(self.getDecor(pidname))
     else:
-      self._logger.warning("Impossible to retrieve the pidname. Unknow dataframe")
+      return False
+ 
 
   def isMCPhoton(self):
-    if self._dataframe is DataframeEnum.Photon_v1:
-        return self._event.mc_isPhoton
-    else:
-      self._logger.warning("Impossible to retrieve the value of deltaE. Unknow dataframe")
-      return False
+    return self._event.mc_isPhoton
+
 

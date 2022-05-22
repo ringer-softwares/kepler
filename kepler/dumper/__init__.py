@@ -6,10 +6,6 @@ from . import ElectronDumper_v1
 __all__.extend( ElectronDumper_v1.__all__ )
 from .ElectronDumper_v1 import *
 
-from . import ElectronDumper_v2
-__all__.extend( ElectronDumper_v2.__all__ )
-from .ElectronDumper_v2 import *
-
 from . import Merger
 __all__.extend( Merger.__all__ )
 from .Merger import *

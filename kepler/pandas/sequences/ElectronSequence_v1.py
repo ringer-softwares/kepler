@@ -1,5 +1,5 @@
 
-__all__ = ['ElectronSequence']
+__all__ = ['ElectronSequence_v1']
 
 from Gaugi import Logger
 from Gaugi.macros import *
@@ -19,7 +19,7 @@ pandarallel.initialize()
 #
 # Electron sequence used during Run 2
 #
-class ElectronSequence(Logger):
+class ElectronSequence_v1(Logger):
 
     # NOTE: etcut triggers not supported yet
     #
@@ -115,21 +115,6 @@ class ElectronSequence(Logger):
                 'HLT'    : (self.hlt_etthr, self.hlt_column)
         }) )
 
-
-    def __apply(self, row):
-        l1calo_passed=False; l2calo_passed=False; l2_passed=False; efcalo_passed=False; hlt_passed=False
-        if row[self.L1Seed_column]:
-            l1calo_passed=True
-            if (row['trig_L2_cl_et'] >= self.l2calo_etthr) and (row[self.l2calo_column] == True):
-                l2calo_passed=True
-                if row[self.l2_column]:
-                    l2_passed=True
-                    if row['trig_EF_cl_et'] >= self.efcalo_etthr:
-                        efcalo_passed=True
-                        if row[self.hlt_column] and (row['trig_EF_el_et'] >= self.hlt_etthr):
-                            hlt_passed=True
-        return l1calo_passed,l2calo_passed,l2_passed,efcalo_passed,hlt_passed
-     
 
 
 

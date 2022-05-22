@@ -1,12 +1,9 @@
 
-__all__ = ["TrackCaloMatchType","SummaryType","TrackParticle"]
+__all__ = ["TrackCaloMatchType","SummaryType","TrackParticle_v1"]
 
 
 from Gaugi import EDM
 from Gaugi  import StatusCode, EnumStringification
-from Gaugi import stdvector2list
-
-from kepler.core import Dataframe as DataframeEnum
 
 
 
@@ -116,9 +113,7 @@ class SummaryType(EnumStringification):
 class TrackParticle(EDM):
 
   # define all skimmed branches here.
-  __eventBranches = {
-
-      "Electron_v1": {'TrackParticle':[
+  __eventBranches = {'TrackParticle':[
                           'el_trk_pt',
                           'el_trk_eta',
                           'el_trk_charge',
@@ -146,8 +141,9 @@ class TrackParticle(EDM):
                           'trig_EF_el_trk_summaryValues'
 
                           ]
-                          }
-                }
+                  }
+
+
 
   def __init__(self):
     EDM.__init__(self)
@@ -157,167 +153,112 @@ class TrackParticle(EDM):
     """
       Link all branches
     """
-    if self._dataframe is DataframeEnum.Electron_v1:
-      branches = self.__eventBranches["Electron_v1"]["HLT__TrackParticle"] if self._is_hlt else self.__eventBranches["Electron_v1"]["TrackParticle"]
-      self.link( branches )
-      return StatusCode.SUCCESS
-    else:
-      self._logger.warning( "Can not initialize the TrackParticle object. Dataframe not available." )
-      return StatusCode.FAILURE
-
-
+    branches = self.__eventBranches["HLT__TrackParticle"] if self._is_hlt else self.__eventBranches["TrackParticle"]
+    self.link( branches )
+    return StatusCode.SUCCESS
 
 
   def pt(self):
     """
       Retrieve the Eta information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_pt[self.getPos()]
-      else:
-        return self._event.el_trk_pt
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_pt[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of Eta. Unknow dataframe.")
-      return -999
-
+      return self._event.el_trk_pt
+   
 
   def eta(self):
     """
       Retrieve the Eta information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_eta[self.getPos()]
-      else:
-        return self._event.el_trk_eta
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_eta[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of Eta. Unknow dataframe.")
-      return -999
+      return self._event.el_trk_eta
+    
 
 
   def charge(self):
     """
       Retrieve the charge information from Physval or SkimmedNtuple
     """
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_charge[self.getPos()]
-      else:
-        return self._event.el_trk_charge
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_charge[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of charge. Unknow dataframe.")
-      return -999
+      return self._event.el_trk_charge
 
 
   def d0(self):
-
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_d0[self.getPos()]
-      else:
-        return self._event.el_trk_d0
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_d0[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of d0. Unknow dataframe")
-      return -999
+      return self._event.el_trk_d0
+ 
 
 
   def d0significance(self):
-
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_d0significance[self.getPos()]
-      else:
-        return self._event.el_trk_d0significance
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_d0significance[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of d0significance. Unknow dataframe")
-      return -999
+      return self._event.el_trk_d0significance
+    
 
 
   def sigd0(self):
-
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_sigd0[self.getPos()]
-      else:
-        return self._event.el_trk_sigd0
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_sigd0[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of sigd0. Unknow dataframe")
-      return -999
-
-
-
+      return self._event.el_trk_sigd0
+    
 
   def eProbabilityHT(self):
-
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_eProbabilityHT[self.getPos()]
-      else:
-        return self._event.el_trk_eProbabilityHT
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_eProbabilityHT[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of eProbabilityHT. Unknow dataframe")
-      return -999
-
+      return self._event.el_trk_eProbabilityHT
+   
 
   def trans_TRT_PID(self):
-
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_transformed_eProbabilityHT[self.getPos()]
-      else:
-        return self._event.el_trk_transformed_eProbabilityHT
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_transformed_eProbabilityHT[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of TRT_PID. Unknow dataframe")
-      return -999
-
+      return self._event.el_trk_transformed_eProbabilityHT
+  
 
   def DeltaPOverP(self):
-
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_deltaPOverP[self.getPos()]
-      else:
-        return self._event.el_trk_deltaPOverP
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_deltaPOverP[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of eProbabilityHT. Unknow dataframe")
-      return -999
-
+      return self._event.el_trk_deltaPOverP
+    
 
   def qOverP(self):
-
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self._event.trig_EF_el_trk_qOverP[self.getPos()]
-      else:
-        return self._event.el_trk_qOverP
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_qOverP[self.getPos()]
     else:
-      self._logger.warning("Impossible to retrieve the value of qOverP. Unknow dataframe")
-      return -999
-
+      return self._event.el_trk_qOverP
+  
 
   def summaryValue( self, summaryType ):
     """
       Helper method:
         Retrieve the summary track value from the ntuple
     """
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        offset = ( self._event.trig_EF_el_trk_summaryValues.size()/ float(self.size()) ) * self.getPos()
-        if offset+summaryType > self._event.trig_EF_el_trk_summaryValues.size():
-          self._logger.error('SummaryType outside of range. Can not retrieve %s from the PhysVal', SummaryType.tostring(summaryType))
-          return -999
-        else:
-          return ord(self._event.trig_EF_el_trk_summaryValues.at(int(offset+summaryType)))
+    if self._is_hlt:
+      offset = ( self._event.trig_EF_el_trk_summaryValues.size()/ float(self.size()) ) * self.getPos()
+      if offset+summaryType > self._event.trig_EF_el_trk_summaryValues.size():
+        self._logger.error('SummaryType outside of range. Can not retrieve %s from the PhysVal', SummaryType.tostring(summaryType))
+        return -999
       else:
-        if summaryType > self._event.el_trk_summaryValues.size():
-          self._logger.error('SummaryType outside of range. Can not retrieve %s from the PhysVal', SummaryType.tostring(summaryType))
-          return -999
-        else:
-          return ord(self._event.el_trk_summaryValues.at(summaryType))
+        return ord(self._event.trig_EF_el_trk_summaryValues.at(int(offset+summaryType)))
     else:
-      self._logger.warning("Impossible to retrieve %s value. Unknow dataframe", SummaryType.tostring(summaryType))
-      return -999
+      if summaryType > self._event.el_trk_summaryValues.size():
+        self._logger.error('SummaryType outside of range. Can not retrieve %s from the PhysVal', SummaryType.tostring(summaryType))
+        return -999
+      else:
+        return ord(self._event.el_trk_summaryValues.at(summaryType))
+    
 
 
   def numberOfBLayerHits(self):
@@ -381,13 +322,10 @@ class TrackParticle(EDM):
     """
     	Retrieve the TrackParticle container size
     """
-    if self._dataframe is DataframeEnum.Electron_v1:
-      if self._is_hlt:
-        return self.event.trig_EF_el_trk_eta.size()
-      else:
-        return 1
+    if self._is_hlt:
+      return self.event.trig_EF_el_trk_eta.size()
     else:
-      self._logger.warning("Impossible to retrieve the TrackParticle container size. Unknow dataframe")
+      return 1
 
   def empty(self):
     return False if self.size()>0 else True

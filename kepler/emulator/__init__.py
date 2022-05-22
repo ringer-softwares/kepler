@@ -12,3 +12,8 @@ from .TDT import *
 from . import hypos
 __all__.extend(hypos.__all__)
 from .hypos import *
+
+from .import Filter
+__all__.extend(Filter.__all__)
+from .Filter import *
+

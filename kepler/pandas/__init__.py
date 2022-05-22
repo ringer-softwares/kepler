@@ -8,6 +8,6 @@ from . import readers
 __all__.extend(readers.__all__)
 from .readers import *
 
-from . import menu
-__all__.extend(menu.__all__)
-from .menu import *
+from . import sequences
+__all__.extend(sequences.__all__)
+from .sequences import *

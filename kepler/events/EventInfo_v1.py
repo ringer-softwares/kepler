@@ -1,12 +1,12 @@
 
-__all__ = ['EventInfo']
+__all__ = ['EventInfo_v1']
 
 from Gaugi import EDM
 from Gaugi  import StatusCode
 from kepler.core import Dataframe as DataframeEnum
 
 
-class EventInfo(EDM):
+class EventInfo_v1(EDM):
     __eventBranches = {
             'Electron_v1':
             [ 'RunNumber',
@@ -49,46 +49,34 @@ class EventInfo(EDM):
         elif self._dataframe is DataframeEnum.Photon_v1:
             return self._event.ph_nPileupPrimaryVtx
 
-        else:
-            self._logger.warning("Impossible to retrieve the value of nvtx. Unknow dataframe.")
-
+   
     def avgmu(self):
         """
           Retrieve the avgmu information from Physval or SkimmedNtuple
         """
-        if self._dataframe is DataframeEnum.Electron_v1 or DataframeEnum.Photon_v1:
-            return self._event.avgmu
-        else:
-            self._logger.warning("Impossible to retrieve the value of avgmu. Unknow dataframe.")
+        return self._event.avgmu
+        
 
     def RunNumber(self):
         """
           Retrieve the avgmu information from Physval or SkimmedNtuple
         """
-        if self._dataframe is DataframeEnum.Electron_v1 or DataframeEnum.Photon_v1:
-            return self._event.RunNumber
-        else:
-            self._logger.warning("Impossible to retrieve the value of avgmu. Unknow dataframe.")
+        return self._event.RunNumber
+        
 
     def LumiBlock(self):
         """
           Retrieve the avgmu information from Physval or SkimmedNtuple
         """
-        if self._dataframe is DataframeEnum.Electron_v1 or DataframeEnum.Photon_v1:
-            return self._event.LumiBlock
-        else:
-            self._logger.warning("Impossible to retrieve the value of LB. Unknow dataframe.")
-
+        return self._event.LumiBlock
+        
 
     def MCPileupWeight(self):
         """
           Retrieve the Pileup Weight information from Physval or SkimmedNtuple
         """
-        if self._dataframe is DataframeEnum.Electron_v1 or DataframeEnum.Photon_v1:
-            return 1
-        else:
-            self._logger.warning("Impossible to retrieve the value of MC Pileup Weight")
-
+        return 1
+        
 
     def id(self):
         return self._id

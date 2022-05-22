@@ -1,25 +1,20 @@
 
-__all__ = ["Menu"]
-
+__all__ = ["Menu_v1"]
 
 
 from Gaugi import EDM
 from Gaugi import ToolSvc
-from Gaugi import Algorithm
 from Gaugi import StatusCode
 from Gaugi.macros import *
-from kepler.core import Dataframe as DataframeEnum
+
 from kepler.events import AcceptType
 from kepler.emulator import Accept
-
-import collections
-
 
 
 #
 # EDM Menu
 #
-class Menu(EDM):
+class Menu_v1(EDM):
 
   #
   # Constructor
@@ -66,8 +61,7 @@ class Menu(EDM):
       return self.getDecor( key )
 
     # get the accept decision from the TDT metadata
-    elif (self._dataframe is DataframeEnum.Electron_v1 or DataframeEnum.Photon_v1) and key.startswith('TDT__'):
-
+    elif key.startswith('TDT__'):
       #  TDT__HLT__e28_lhtight_nod0_ivarloose
       #  TDT__EFCalo__e28_lhtight_nod0_ivarloose
       tdt = self.getContext().getHandler("HLT__TDT")
@@ -78,6 +72,7 @@ class Menu(EDM):
       accept.setCutResult( 'Pass', passed )
       self.setDecor( key, accept )
       return accept
+
 
     # This name is not in metadata and not in cache, let's access the emulation svc and run it!
     else:

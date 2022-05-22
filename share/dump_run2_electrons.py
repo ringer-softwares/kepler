@@ -85,7 +85,7 @@ args = parser.parse_args()
 acc = ElectronLoop(  "EventATLASLoop",
                      inputFiles = args.inputFiles,
                      treePath   = eval(args.path),
-                     dataframe  = DataframeEnum.Electron_v1,
+                     dataframe  = DataframeEnum.Run2,
                      outputFile = args.outputFile,
                      level      = getattr(LoggingLevel, args.level),
                      mute_progressbar = args.mute,
@@ -182,7 +182,7 @@ ToolSvc+=filter
 #
 # Electron dumper
 #
-from kepler.dumper import ElectronDumper_v2 as ElectronDumper
+from kepler.dumper import ElectronDumper_v1 as ElectronDumper
 output = args.outputFile.replace('.root','')
 
 et_bins = eval(eval(args.et_bins))

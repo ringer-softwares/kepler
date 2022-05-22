@@ -2,11 +2,9 @@
 __all__ = ['ElectronLoop', 'PhotonLoop']
 
 
-from Gaugi import Logger, LoggingLevel
 from Gaugi.macros import *
 from Gaugi import StatusCode, StatusTool
 from Gaugi.TEventLoop import TEventLoop
-
 from kepler.core.enumerators import Dataframe as DataframeEnum
 
 #
@@ -28,25 +26,40 @@ class ElectronLoop( TEventLoop ):
     if super(ElectronLoop,self).initialize().isFailure():
       MSG_FATAL( self, "Impossible to initialize the TEventLoop services.")
 
-    if self._dataframe is DataframeEnum.Electron_v1:
+    if self._dataframe is DataframeEnum.Run2:
       from kepler.dataframe import Electron_v1
       self._event = Electron_v1()
+
+      from kepler.events import Electron_v1 as Electron
+      from kepler.events import TrigEMCluster_v1 as TrigEMCluster
+      from kepler.events import TrigElectron_v1 as TrigElectron
+      from kepler.events import CaloCluster_v1 as CaloCluster
+      from kepler.events import TrackParticle_v1 as TrackParticle
+      from kepler.events import EmTauRoI_v1 as EmTauRoI
+      from kepler.events import EventInfo_v1 as EventInfo
+      from kepler.events import MonteCarlo_v1 as MonteCarlo
+      from kepler.events import Menu_v1 as Menu
+
+    elif self._dataframe is DataframeEnum.Run3:
+      from kepler.dataframe import Electron_v2
+      self._event = Electron_v2()
+
+      from kepler.events import Electron_v1 as Electron
+      from kepler.events import TrigEMCluster_v1 as TrigEMCluster
+      from kepler.events import TrigElectron_v2 as TrigElectron
+      from kepler.events import CaloCluster_v1 as CaloCluster
+      from kepler.events import TrackParticle_v1 as TrackParticle
+      from kepler.events import EmTauRoI_v1 as EmTauRoI
+      from kepler.events import EventInfo_v1 as EventInfo
+      from kepler.events import MonteCarlo_v1 as MonteCarlo
+      from kepler.events import Menu_v1 as Menu
+
     else:
       return StatusCode.FATAL
 
 
     MSG_INFO( self, "Creating containers...")
     # Allocating containers
-    from kepler.events import Electron
-    from kepler.events import TrigEMCluster
-    from kepler.events import TrigElectron
-    from kepler.events import CaloCluster
-    from kepler.events import TrackParticle
-    from kepler.events import EmTauRoI
-    from kepler.events import EventInfo
-    from kepler.events import MonteCarlo
-    from kepler.events import TDT
-    from kepler.events import Menu
 
 
     # Initialize the base of this container.
@@ -74,18 +87,12 @@ class ElectronLoop( TEventLoop ):
   
 
     # append TDT container
-    if self._dataframe is DataframeEnum.Electron_v1:
+    if self._dataframe is DataframeEnum.Run2:
+      from kepler.events import TDT_v1 as TDT
       self._containersSvc.update({
                             # metadata containers
                             'HLT__TDT'                   : TDT(),
                             })
-
-
-    # force the event id number for this event looper
-    #self._containersSvc['EventInfoContainer'].setId( self.id() )
-    # Add decoration for  event information
-    self._containersSvc['EventInfoContainer'].setDecor( "is_fakes", True if 'fakes' in self._treePath else False)
-
 
 
     # configure all EDMs needed
@@ -100,7 +107,7 @@ class ElectronLoop( TEventLoop ):
 
       # enable hlt property by the container key name
       if 'HLT' in key:
-        edm.is_hlt = True
+        edm.hlt = True
 
       # set basepath into the root file
       if edm.useMetadataParams():
@@ -167,7 +174,7 @@ class PhotonLoop( TEventLoop ):
     from kepler.events import EventInfo
     from kepler.events import MonteCarlo
     from kepler.events import TDT
-    from kepler.events import Menu
+    from ringer.kepler.kepler.events import Menu_v1
 
 
     # Initialize the base of this container.
@@ -177,7 +184,7 @@ class PhotonLoop( TEventLoop ):
                             'EventInfoContainer'         : EventInfo(),
                             'MonteCarloContainer'        : MonteCarlo(),
                             'CaloClusterContainer'       : CaloCluster(),
-                            'MenuContainer'              : Menu(),
+                            'MenuContainer'              : Menu_v1(),
                            }
 
     self._containersSvc.update({
@@ -217,7 +224,7 @@ class PhotonLoop( TEventLoop ):
 
       # enable hlt property by the container key name
       if 'HLT' in key:
-        edm.is_hlt = True
+        edm.hlt = True
 
       # set basepath into the root file
       if edm.useMetadataParams():
