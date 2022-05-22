@@ -110,7 +110,7 @@ class SummaryType(EnumStringification):
 
 
 
-class TrackParticle(EDM):
+class TrackParticle_v1(EDM):
 
   # define all skimmed branches here.
   __eventBranches = {'TrackParticle':[

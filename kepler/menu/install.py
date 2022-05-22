@@ -2,8 +2,6 @@
 
 __all__ =  [
               "install_commom_features_for_electron_dump",
-              "install_Zee_ringer_v6",
-              "install_Zee_ringer_v8",
            ]
 
 
