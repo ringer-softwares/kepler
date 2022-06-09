@@ -1,5 +1,5 @@
 
-__all__ = ["ElectronDumper_v1"]
+__all__ = ["ElectronDumper_v2"]
 
 
 from kepler.core import Dataframe as DataframeEnum 
@@ -22,7 +22,7 @@ from pprint import pprint
 #
 # Electron
 #
-class ElectronDumper_v1( Algorithm ):
+class ElectronDumper_v2( Algorithm ):
 
 
   #
@@ -107,7 +107,9 @@ class ElectronDumper_v1( Algorithm ):
                                 'trig_L2_el_caloEta',
                                 'trig_L2_el_trkClusDeta',
                                 'trig_L2_el_trkClusDphi',
-                                'trig_L2_el_etOverPt'] )
+                                'trig_L2_el_etOverPt',
+                                'trig_L2_el_d0',
+                                ] )
 
     #
     # Calo cluster
@@ -243,6 +245,7 @@ class ElectronDumper_v1( Algorithm ):
     event_row.append( fc.wstot()    )
     event_row.append( fc.e2tsts1()  )
 
+
     if self.dumpRings:
       event_row.extend( fc.ringsE() )
    
@@ -262,8 +265,10 @@ class ElectronDumper_v1( Algorithm ):
       event_row.append( fcElCont.trkClusDeta() )  
       event_row.append( fcElCont.trkClusDphi() )
       event_row.append( fcElCont.etOverPt() )
+      event_row.append( fcElCont.d0() )
+
     else:
-      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
+      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
 
 
     # Precision step
@@ -385,14 +390,11 @@ class ElectronDumper_v1( Algorithm ):
     event_row.append( elCont.accept( "el_lhloose"  ) )
     event_row.append( elCont.accept( "el_lhvloose" ) )
  
-
     #
     # Decorate from external funcions by the client. Can be any type
     #
     for feature, func, in self.__decorators.items():
       event_row.append( func(context) )
-
-
 
     #
     # Decorate with other decisions from emulator service

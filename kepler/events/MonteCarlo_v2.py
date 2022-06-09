@@ -1,20 +1,20 @@
 
-__all__ = ['MonteCarlo_v1']
+__all__ = ['MonteCarlo_v2']
 
 from Gaugi import EDM
 from Gaugi import StatusCode
 
 
-class MonteCarlo_v1(EDM):
+class MonteCarlo_v2(EDM):
 
   __eventBranches = [ # For electron and photon
                       'mc_hasMC',
                       'mc_isTruthElectronAny',
                       'mc_isTruthElectronFromZ',
-                      'mc_isTruthElectronFromW',
+                      #'mc_isTruthElectronFromW',
                       'mc_isTruthElectronFromJpsi',
-                      'mc_isTruthJetFromAny',
-                      'mc_isTruthPhotonFromAny',
+                      #'mc_isTruthJetFromAny',
+                      #'mc_isTruthPhotonFromAny',
                       'mc_type',
                       'mc_origin',
                     ]
@@ -46,7 +46,7 @@ class MonteCarlo_v1(EDM):
    
 
   def isTruthElectronFromAny(self):
-    return self._event.mc_isTruthElectronFromAny
+    return self._event.mc_isTruthElectronAny
     
 
   def isTruthJetFromAny(self):

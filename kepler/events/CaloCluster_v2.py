@@ -1,5 +1,5 @@
 
-__all__ = ["CaloCluster_v1"]
+__all__ = ["CaloCluster_v2"]
 
 
 from Gaugi import EDM
@@ -7,7 +7,7 @@ from Gaugi import StatusCode
 from kepler.core import Dataframe as DataframeEnum
 import numpy as np
 
-class CaloCluster_v1(EDM):
+class CaloCluster_v2(EDM):
 
   # define all skimmed branches here.
   __eventBranches = {
@@ -19,18 +19,12 @@ class CaloCluster_v1(EDM):
                               'el_calo_e',
                             ],
                    'HLT__CaloCluster':[
-                              'trig_EF_el_calo_e',
-                              'trig_EF_el_calo_et',
-                              'trig_EF_el_calo_eta',
-                              'trig_EF_el_calo_phi',
-                              'trig_EF_el_calo_etaBE2',
-                              'trig_EF_calo_loose',
-                              'trig_EF_calo_medium',
-                              'trig_EF_calo_tight',
-                              'trig_EF_calo_lhvloose',
-                              'trig_EF_calo_lhloose',
-                              'trig_EF_calo_lhmedium',
-                              'trig_EF_calo_lhtight',
+                              'trig_EF_calo_e',
+                              'trig_EF_calo_et',
+                              'trig_EF_calo_eta',
+                              'trig_EF_calo_phi',
+                              'trig_EF_calo_etaBE2',
+                             
                               ]
                     }
 
@@ -53,7 +47,7 @@ class CaloCluster_v1(EDM):
       Retrieve the Et information from Physval or SkimmedNtuple
     """
     if self._is_hlt:
-      return self._event.trig_EF_el_calo_et[self.getPos()]
+      return self._event.trig_EF_calo_et[self.getPos()]
     else:
       return self._event.el_calo_et
    
@@ -64,7 +58,7 @@ class CaloCluster_v1(EDM):
       Retrieve the Eta information from Physval or SkimmedNtuple
     """
     if self._is_hlt:
-      return self._event.trig_EF_el_calo_eta[self.getPos()]
+      return self._event.trig_EF_calo_eta[self.getPos()]
     else:
       return self._event.el_calo_eta
 
@@ -75,7 +69,7 @@ class CaloCluster_v1(EDM):
       Retrieve the Phi information from Physval or SkimmedNtuple
     """
     if self._is_hlt:
-      return self._event.trig_EF_el_calo_phi[self.getPos()]
+      return self._event.trig_EF_calo_phi[self.getPos()]
     else:
       return self._event.el_calo_phi
 
@@ -85,7 +79,7 @@ class CaloCluster_v1(EDM):
       Retrieve the EtaBE2 information from Physval or SkimmedNtuple
     """
     if self._is_hlt:
-      return self._event.trig_EF_el_calo_etaBE2[self.getPos()]
+      return self._event.trig_EF_calo_etaBE2[self.getPos()]
     else:
       return self._event.el_calo_etaBE2
 
@@ -95,7 +89,7 @@ class CaloCluster_v1(EDM):
       Retrieve the E information from Physval or SkimmedNtuple
     """
     if self._is_hlt:
-      return self._event.trig_EF_el_calo_e[self.getPos()]
+      return self._event.trig_EF_calo_e[self.getPos()]
     else:
       return self._event.el_calo_e
 

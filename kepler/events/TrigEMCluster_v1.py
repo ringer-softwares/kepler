@@ -104,7 +104,7 @@ class TrigEMCluster_v1(EDM):
           Retrieve the et information from Physval or SkimmedNtuple
         """
         return self._event.trig_L2_calo_et
-       
+    
 
     def eta(self):
         """

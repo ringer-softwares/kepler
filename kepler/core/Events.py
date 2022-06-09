@@ -29,30 +29,28 @@ class ElectronLoop( TEventLoop ):
     if self._dataframe is DataframeEnum.Run2:
       from kepler.dataframe import Electron_v1
       self._event = Electron_v1()
-
-      from kepler.events import Electron_v1 as Electron
+      from kepler.events import Electron_v1      as Electron
       from kepler.events import TrigEMCluster_v1 as TrigEMCluster
-      from kepler.events import TrigElectron_v1 as TrigElectron
-      from kepler.events import CaloCluster_v1 as CaloCluster
+      from kepler.events import TrigElectron_v1  as TrigElectron
+      from kepler.events import CaloCluster_v1   as CaloCluster
       from kepler.events import TrackParticle_v1 as TrackParticle
-      from kepler.events import EmTauRoI_v1 as EmTauRoI
-      from kepler.events import EventInfo_v1 as EventInfo
-      from kepler.events import MonteCarlo_v1 as MonteCarlo
-      from kepler.events import Menu_v1 as Menu
+      from kepler.events import EmTauRoI_v1      as EmTauRoI
+      from kepler.events import EventInfo_v1     as EventInfo
+      from kepler.events import MonteCarlo_v1    as MonteCarlo
+      from kepler.events import Menu_v1          as Menu
 
     elif self._dataframe is DataframeEnum.Run3:
       from kepler.dataframe import Electron_v2
       self._event = Electron_v2()
-
-      from kepler.events import Electron_v1 as Electron
+      from kepler.events import Electron_v2      as Electron
       from kepler.events import TrigEMCluster_v1 as TrigEMCluster
-      from kepler.events import TrigElectron_v2 as TrigElectron
-      from kepler.events import CaloCluster_v1 as CaloCluster
-      from kepler.events import TrackParticle_v1 as TrackParticle
-      from kepler.events import EmTauRoI_v1 as EmTauRoI
-      from kepler.events import EventInfo_v1 as EventInfo
-      from kepler.events import MonteCarlo_v1 as MonteCarlo
-      from kepler.events import Menu_v1 as Menu
+      from kepler.events import TrigElectron_v2  as TrigElectron
+      from kepler.events import CaloCluster_v2   as CaloCluster
+      from kepler.events import TrackParticle_v2 as TrackParticle
+      from kepler.events import EmTauRoI_v2      as EmTauRoI
+      from kepler.events import EventInfo_v2     as EventInfo
+      from kepler.events import MonteCarlo_v2    as MonteCarlo
+      from kepler.events import Menu_v1          as Menu
 
     else:
       return StatusCode.FATAL
@@ -78,12 +76,13 @@ class ElectronLoop( TEventLoop ):
                             'HLT__EmTauRoIContainer'     : EmTauRoI(),
                             })
 
-    self._containersSvc.update({  'ElectronContainer'           : Electron(),
-                                    'TrackParticleContainer'      : TrackParticle(),
-                                    'HLT__TrigElectronContainer'  : TrigElectron(),
-                                    'HLT__ElectronContainer'      : Electron(),
-                                    'HLT__TrackParticleContainer' : TrackParticle(),
-                                })
+    self._containersSvc.update({  
+                            'ElectronContainer'          : Electron(),
+                            'TrackParticleContainer'     : TrackParticle(),
+                            'HLT__TrigElectronContainer' : TrigElectron(),
+                            'HLT__ElectronContainer'     : Electron(),
+                            'HLT__TrackParticleContainer': TrackParticle(),
+                            })
   
 
     # append TDT container
@@ -107,7 +106,7 @@ class ElectronLoop( TEventLoop ):
 
       # enable hlt property by the container key name
       if 'HLT' in key:
-        edm.hlt = True
+        edm.is_hlt = True
 
       # set basepath into the root file
       if edm.useMetadataParams():
@@ -193,8 +192,9 @@ class PhotonLoop( TEventLoop ):
                             'HLT__EmTauRoIContainer'     : EmTauRoI(),
                             })
 
-    self._containersSvc.update({  'PhotonContainer'             : Photon(),
-                                    'HLT__PhotonContainer'        : Photon(),
+    self._containersSvc.update({  
+                                  'PhotonContainer'      : Photon(),
+                                  'HLT__PhotonContainer' : Photon(),
                                 })
 
     # append TDT container
