@@ -193,11 +193,11 @@ class Electron_v2(EDM):
                           #'el_multiLepton',
 
                           # extra calo branches
-                          'el_calo_et',
-                          'el_calo_eta',
-                          'el_calo_phi',
-                          'el_calo_etaBE2',
-                          'el_calo_e',
+                          #'el_calo_et',
+                          #'el_calo_eta',
+                          #'el_calo_phi',
+                          #'el_calo_etaBE2',
+                          #'el_calo_e',
 
                           # Extra
                           'el_ringsE',
@@ -258,7 +258,7 @@ class Electron_v2(EDM):
 
               
 
-                          'trig_EF_el_etCone',
+                          #'trig_EF_el_etCone',
                           #'trig_EF_el_ptCone',
                           ]
                           }

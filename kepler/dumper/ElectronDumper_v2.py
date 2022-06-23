@@ -28,7 +28,7 @@ class ElectronDumper_v2( Algorithm ):
   #
   # constructor
   #
-  def __init__(self, output, etbins, etabins, target, **kw ):
+  def __init__(self, output, etbins, etabins, target,  etbins_range = [0,999], **kw ):
     
     Algorithm.__init__(self, "")
 
@@ -38,6 +38,7 @@ class ElectronDumper_v2( Algorithm ):
     self.__etbins = etbins
     self.__etabins = etabins
     self.__outputname = output
+    self.etbins_range = etbins_range
 
     self.__event = {}
     self.__event_label = []
@@ -232,6 +233,8 @@ class ElectronDumper_v2( Algorithm ):
     if etBinIdx < 0 or etaBinIdx < 0:
       return StatusCode.SUCCESS
 
+    if etBinIdx < self.etbins_range[0] or etBinIdx > self.etbins_range[1]:
+      return StatusCode.SUCCESS
 
     event_row.append( fc.et()       )
     event_row.append( fc.eta()      )

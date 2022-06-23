@@ -21,6 +21,7 @@ import time
 class MergeNpz(Logger):
 
   def __init__(self , merge_these_keys ):
+    Logger.__init__(self)
     self.__merge_these_keys = merge_these_keys
     self.__pop_these_keys = ['allow_pickle', 'protocol']
 
@@ -35,7 +36,15 @@ class MergeNpz(Logger):
       save(d, output, protocol = 'savez_compressed')
     else:
       # load the first
-      d = load( files.pop() )
+   
+      good=False
+      while not good:
+        try:
+          d = load( files.pop() )
+          good=True
+        except:
+          continue
+
       for filename in progressbar(files):
         self.merge( filename, d )
 
@@ -46,12 +55,13 @@ class MergeNpz(Logger):
       save(d, output, protocol = 'savez_compressed')
 
   def merge( self, filename, to_dict ):
-    from_dict = load( filename )
-    for key in to_dict.keys():
-      if key in self.__merge_these_keys:
-        to_dict[key] = np.concatenate( (to_dict[key],from_dict[key]) ) 
-
-
+    try:
+      from_dict = load( filename )
+      for key in to_dict.keys():
+        if key in self.__merge_these_keys:
+          to_dict[key] = np.concatenate( (to_dict[key],from_dict[key]) ) 
+    except:
+      MSG_ERROR(self, "Not possible to merge %s"%filename)
 
 class MergeNpzPool( Logger ):
 

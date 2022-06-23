@@ -11,7 +11,7 @@ class EventInfo_v2(EDM):
             'avgmu',
             #'LumiBlock',
             #'el_nPileupPrimaryVtx'
-            ],
+            ]
 
             
 
