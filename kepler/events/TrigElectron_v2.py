@@ -10,7 +10,7 @@ class TrigElectron_v2(EDM):
 
     __eventBranches = [
                       'trig_L2_el_pt',
-                      'trig_L2_el_caloEta',
+                      #'trig_L2_el_caloEta',
                       'trig_L2_el_eta',
                       'trig_L2_el_phi',
                       #'trig_L2_el_charge',
@@ -18,8 +18,8 @@ class TrigElectron_v2(EDM):
                       'trig_L2_el_trkClusDeta',
                       'trig_L2_el_trkClusDphi',
                       'trig_L2_el_trk_d0',
-                      'trig_L2_el_nTRTHits',
-                      'trig_L2_el_nTRTHiThresholdHits',
+                      #'trig_L2_el_nTRTHits',
+                      #'trig_L2_el_nTRTHiThresholdHits',
                     ]
                 
 
@@ -102,14 +102,14 @@ class TrigElectron_v2(EDM):
         """
         Retrieve the number of TRT hits information from Physval or SkimmedNtuple
         """
-        return self._event.trig_L2_el_nTRTHits[self.getPos()]
+        return -1
         
 
     def numberOfTRTHiThresholdHits(self):
         """
         Retrieve the number of TRT high thresholdhits information from Physval or SkimmedNtuple
         """
-        return self._event.trig_L2_el_nTRTHiThresholdHits[self.getPos()]
+        return -1
 
     def size(self):
         return self._event.trig_L2_el_pt.size()

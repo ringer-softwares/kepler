@@ -17,6 +17,7 @@ import collections
 import gc
 
 from pprint import pprint
+from prettytable import PrettyTable
 
 
 #
@@ -105,7 +106,7 @@ class ElectronDumper_v2( Algorithm ):
                                 'trig_L2_el_pt',
                                 'trig_L2_el_eta',
                                 'trig_L2_el_phi',
-                                'trig_L2_el_caloEta',
+                                #'trig_L2_el_caloEta',
                                 'trig_L2_el_trkClusDeta',
                                 'trig_L2_el_trkClusDphi',
                                 'trig_L2_el_etOverPt',
@@ -264,14 +265,14 @@ class ElectronDumper_v2( Algorithm ):
       event_row.append( fcElCont.pt() )
       event_row.append( fcElCont.eta() )
       event_row.append( fcElCont.phi() )
-      event_row.append( fcElCont.caloEta() )
+      #event_row.append( fcElCont.caloEta() )
       event_row.append( fcElCont.trkClusDeta() )  
       event_row.append( fcElCont.trkClusDphi() )
       event_row.append( fcElCont.etOverPt() )
       event_row.append( fcElCont.d0() )
 
     else:
-      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
+      event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
 
 
     # Precision step
@@ -384,7 +385,7 @@ class ElectronDumper_v2( Algorithm ):
       event_row.append( trkCont.DeltaPOverP() )
     else:
       event_row.extend( [False, -1, -1, -1, -1.0, -1.0, -1.0, 
-                         -1.0, -1.0, -1.0, -1.0, -1.0] )
+                         -1.0,  -1.0, -1.0, -1.0, -1.0] )
 
 
     # Adding Offline PID LH decisions
@@ -411,7 +412,16 @@ class ElectronDumper_v2( Algorithm ):
       MSG_FATAL( "This event missing some column. We have some problem into the dumper code! please, verify it!")
 
 
+    #x = PrettyTable()
+    #for idx, branch in enumerate(self.__event_label):
+    #  if 'ring' in branch:
+    #    continue
+    #  #print(branch)
+    #  x.add_row( (branch, event_row[idx]))
+    #print(x)
+
     key = ('et%d_eta%d') % (etBinIdx, etaBinIdx)
+    #print(key)
     self.fill(key , event_row)
     return StatusCode.SUCCESS
 

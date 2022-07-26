@@ -26,8 +26,8 @@ def install_commom_features_for_electron_dump():
             configure("L1_EM20VH"  , "L1_EM20VH"  ),
             configure("L1_EM20VHI" , "L1_EM20VHI" ),
             configure("L1_EM22VH"  , "L1_EM22VH"  ),
-            configure("L1_EM22VHI" , "L1_EM22VHI"  ),
-            configure("L1_EM24VHI" , "L1_EM24VHI"  ),
+            configure("L1_EM22VHI" , "L1_EM22VHI" ),
+            configure("L1_EM24VHI" , "L1_EM24VHI" ),
   ]
 
 

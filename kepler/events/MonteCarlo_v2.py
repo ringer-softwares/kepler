@@ -12,7 +12,7 @@ class MonteCarlo_v2(EDM):
                       'mc_isTruthElectronAny',
                       'mc_isTruthElectronFromZ',
                       #'mc_isTruthElectronFromW',
-                      'mc_isTruthElectronFromJpsi',
+                      'mc_isTruthElectronFromJpsiPrompt',
                       #'mc_isTruthJetFromAny',
                       #'mc_isTruthPhotonFromAny',
                       'mc_type',
@@ -41,8 +41,8 @@ class MonteCarlo_v2(EDM):
     return self._event.mc_isTruthElectronFromW
     
 
-  def isTruthElectronFromJpsi(self):
-    return self._event.mc_isTruthElectronFromJpsi
+  def isTruthElectronFromJpsiPrompt(self):
+    return self._event.mc_isTruthElectronFromJpsiPrompt
    
 
   def isTruthElectronFromAny(self):

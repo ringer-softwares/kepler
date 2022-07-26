@@ -116,7 +116,7 @@ class TrackParticle_v2(EDM):
   __eventBranches = {'TrackParticle':[
                           'el_trk_pt',
                           'el_trk_eta',
-                          'el_trk_charge',
+                          #'el_trk_charge',
                           'el_trk_sigd0',
                           'el_trk_d0',
                           'el_trk_eProbabilityHT',
@@ -130,7 +130,7 @@ class TrackParticle_v2(EDM):
                         'HLT__TrackParticle':[
                           'trig_EF_el_trk_pt',
                           'trig_EF_el_trk_eta',
-                          'trig_EF_el_trk_charge',
+                          #'trig_EF_el_trk_charge',
                           'trig_EF_el_trk_sigd0',
                           'trig_EF_el_trk_d0',
                           'trig_EF_el_trk_eProbabilityHT',
@@ -251,13 +251,13 @@ class TrackParticle_v2(EDM):
         self._logger.error('SummaryType outside of range. Can not retrieve %s from the PhysVal', SummaryType.tostring(summaryType))
         return -999
       else:
-        return ord(self._event.trig_EF_el_trk_summaryValues.at(int(offset+summaryType)))
+        return self._event.trig_EF_el_trk_summaryValues.at(int(offset+summaryType))
     else:
       if summaryType > self._event.el_trk_summaryValues.size():
         self._logger.error('SummaryType outside of range. Can not retrieve %s from the PhysVal', SummaryType.tostring(summaryType))
         return -999
       else:
-        return ord(self._event.el_trk_summaryValues.at(summaryType))
+        return self._event.el_trk_summaryValues.at(summaryType)
     
 
 

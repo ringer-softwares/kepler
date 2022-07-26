@@ -151,8 +151,8 @@ class Electron_v2(EDM):
                           'el_hasTrack',
 
                           # shower shapes
-                          #'el_e',
-                          'el_et',
+                          'el_e',
+                          'el_pt',
                           'el_eta',
                           'el_phi',
                           'el_ethad1',
@@ -174,6 +174,7 @@ class Electron_v2(EDM):
                           'el_e277',
                           #'el_etCone',
                           #'el_ptCone',
+                          'el_ptvarcone20',
 
                           # trackCaloMatch branches
                           'el_deltaEta1',
@@ -183,9 +184,9 @@ class Electron_v2(EDM):
                           'el_deltaPhiRescaled2',
 
                           # selector branches
-                          'el_loose',
-                          'el_medium',
-                          'el_tight',
+                          #'el_loose',
+                          #'el_medium',
+                          #'el_tight',
                           'el_lhvloose',
                           'el_lhloose',
                           'el_lhmedium',
@@ -193,14 +194,14 @@ class Electron_v2(EDM):
                           #'el_multiLepton',
 
                           # extra calo branches
-                          #'el_calo_et',
-                          #'el_calo_eta',
-                          #'el_calo_phi',
-                          #'el_calo_etaBE2',
-                          #'el_calo_e',
+                          'el_calo_et',
+                          'el_calo_eta',
+                          'el_calo_phi',
+                          'el_calo_etaBE2',
+                          'el_calo_e',
 
                           # Extra
-                          'el_ringsE',
+                          #'el_ringsE',
                           'el_nGoodVtx',
                           'el_nPileupPrimaryVtx',
 
@@ -217,6 +218,7 @@ class Electron_v2(EDM):
                           # shower shapes
                           'trig_EF_el_e',
                           'trig_EF_el_et',
+                          'trig_EF_el_pt',
                           'trig_EF_el_eta',
                           'trig_EF_el_phi',
                           'trig_EF_el_ethad1',
@@ -236,8 +238,9 @@ class Electron_v2(EDM):
                           'trig_EF_el_Rhad1',
                           'trig_EF_el_DeltaE',
                           'trig_EF_el_e277',
-                          'trig_EF_el_etCone',
+                          #'trig_EF_el_etCone',
                           #'trig_EF_el_ptCone',
+                          'trig_EF_el_ptvarcone20',
 
                           # trackCaloMatch branches
                           'trig_EF_el_deltaPhiRescaled2',
@@ -247,9 +250,9 @@ class Electron_v2(EDM):
                           'trig_EF_el_dphiresc',
 
                           # selector branches
-                          'trig_EF_el_dnnloose',
-                          'trig_EF_el_dnnmedium',
-                          'trig_EF_el_dnntight',
+                          #'trig_EF_el_dnnloose',
+                          #'trig_EF_el_dnnmedium',
+                          #'trig_EF_el_dnntight',
                           'trig_EF_el_lhvloose',
                           'trig_EF_el_lhloose',
                           'trig_EF_el_lhmedium',
@@ -275,6 +278,14 @@ class Electron_v2(EDM):
     self.link( self.__eventBranches['HLT__Electron'] if self._is_hlt else self.__eventBranches["Electron"] )
     return StatusCode.SUCCESS
 
+  def pt(self):
+    """
+      Retrieve the Et information from Physval or SkimmedNtuple
+    """
+    if self._is_hlt:
+      return self._event.trig_EF_el_pt[self.getPos()]
+    else:
+      return self._event.el_pt
 
   def et(self):
     """
@@ -285,7 +296,6 @@ class Electron_v2(EDM):
         return (self.caloCluster().energy()/math.cosh(self.trackParticle().eta()))
     else:
       return (self.caloCluster().energy()/math.cosh(eta))
-
 
   def eta(self):
     """
@@ -707,6 +717,16 @@ class Electron_v2(EDM):
         return self.getContext().getHandler('TrackParticleContainer')
       else:
         return None
+
+
+  def ptvarcone20(self):
+    """
+      Retrieve the dphi2 information from Physval or SkimmedNtuple
+    """
+    if self._is_hlt:
+      return self._event.trig_EF_el_ptvarcone20[self.getPos()]
+    else:
+      return self._event.el_ptvarcone20
 
 
   def isolationValue( self, isolationType ):
