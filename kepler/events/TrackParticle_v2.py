@@ -4,7 +4,7 @@ __all__ = ["TrackCaloMatchType","SummaryType","TrackParticle_v2"]
 
 from Gaugi import EDM
 from Gaugi  import StatusCode, EnumStringification
-
+import numpy as np
 
 
 class TrackCaloMatchType(EnumStringification):
@@ -116,6 +116,7 @@ class TrackParticle_v2(EDM):
   __eventBranches = {'TrackParticle':[
                           'el_trk_pt',
                           'el_trk_eta',
+                          'el_trk_phi',
                           #'el_trk_charge',
                           'el_trk_sigd0',
                           'el_trk_d0',
@@ -130,6 +131,7 @@ class TrackParticle_v2(EDM):
                         'HLT__TrackParticle':[
                           'trig_EF_el_trk_pt',
                           'trig_EF_el_trk_eta',
+                          'trig_EF_el_trk_phi',
                           #'trig_EF_el_trk_charge',
                           'trig_EF_el_trk_sigd0',
                           'trig_EF_el_trk_d0',
@@ -178,6 +180,15 @@ class TrackParticle_v2(EDM):
       return self._event.el_trk_eta
     
 
+  def phi(self):
+    """
+      Retrieve the Eta information from Physval or SkimmedNtuple
+    """
+    if self._is_hlt:
+      return self._event.trig_EF_el_trk_phi[self.getPos()]
+    else:
+      return self._event.el_trk_phi
+    
 
   def charge(self):
     """
@@ -331,3 +342,20 @@ class TrackParticle_v2(EDM):
     return False if self.size()>0 else True
 
 
+  def setToBeClosestThan( self, eta, phi ):
+    found=True
+    idx = self.getPos(); minDeltaR = 999
+    def deltaR(  eta1, phi1, eta2, phi2 ):
+      deta = abs( eta1 - eta2 )
+      dphi = abs( phi1 - phi2 ) if abs(phi1 - phi2) < np.pi else (2*np.pi-abs(phi1-phi2))
+      return np.sqrt( deta*deta + dphi*dphi )
+    for trk in self:
+      dR = deltaR( eta, phi, trk.eta(), trk.phi() )
+      if dR>0.07:
+        continue
+      if dR < minDeltaR:
+        minDeltaR = dR
+        idx = trk.getPos()
+        found=True
+    self.setPos(idx)
+    return found

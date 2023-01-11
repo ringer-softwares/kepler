@@ -14,6 +14,7 @@ from Gaugi.constants import GeV
 
 import numpy as np
 import collections
+import math
 import gc
 
 from pprint import pprint
@@ -258,6 +259,7 @@ class ElectronDumper_v2( Algorithm ):
     #
     # Save only the closest fast track object cluster-trk
     fcElCont = context.getHandler("HLT__TrigElectronContainer" )
+
     hasFcTrack = True if fcElCont.size()>0 else False
     if hasFcTrack:
       fcElCont.setToBeClosestThanCluster()
@@ -270,7 +272,6 @@ class ElectronDumper_v2( Algorithm ):
       event_row.append( fcElCont.trkClusDphi() )
       event_row.append( fcElCont.etOverPt() )
       event_row.append( fcElCont.d0() )
-
     else:
       event_row.extend( [False, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0] )
 
@@ -279,21 +280,19 @@ class ElectronDumper_v2( Algorithm ):
     # NOTE: Should be closest than offline object
     elCont = context.getHandler( "ElectronContainer" )
 
-
-
     #
     # Calo Cluster
     #
     # get the closest online-offline object
-    clCont = context.getHandler("HLT__CaloClusterContainer")
-    hasCluster = True if clCont.size()>0 else False
+    on_clCont = context.getHandler("HLT__CaloClusterContainer")
+    hasCluster = on_clCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
+
     if hasCluster:
-      clCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
       event_row.append( True )
-      event_row.append( clCont.et() )
-      event_row.append( clCont.eta() )
-      event_row.append( clCont.etaBE2() )
-      event_row.append( clCont.phi() )
+      event_row.append( on_clCont.et() )
+      event_row.append( on_clCont.eta() )
+      event_row.append( on_clCont.etaBE2() )
+      event_row.append( on_clCont.phi() )
     else:
       event_row.extend( [False, -1.0, -1.0, -1.0, -1.0] )
 
@@ -303,14 +302,22 @@ class ElectronDumper_v2( Algorithm ):
     # HLT electron
     #
     on_elCont = context.getHandler("HLT__ElectronContainer")
-    hasCand = True if on_elCont.size()>0 else False
-    if hasCand:
-      on_elCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
+    hasCand = on_elCont.setToBeClosestThan( elCont.eta(), elCont.phi() )
+
+    if hasCand and hasCluster and on_elCont.caloCluster():
+  
+      trk  = elCont.trackParticle()
+      eta = on_elCont.caloCluster().etaBE2()
+      if trk and trk.eta() != 0:
+        et = on_elCont.caloCluster().energy()/math.cosh(trk.eta())
+      else:
+        et = on_elCont.caloCluster().energy()/math.cosh(eta)
+
       event_row.append( True ) #FIXME!
       # Offline Shower shapes
-      event_row.append( on_elCont.et() )
+      event_row.append( et )
       event_row.append( on_elCont.eta() )
-      event_row.append( on_elCont.caloCluster().etaBE2())
+      event_row.append( on_elCont.caloCluster().etaBE2() )
       event_row.append( on_elCont.phi() )
       event_row.append( on_elCont.showerShapeValue( EgammaParameters.Rhad1 ) )
       event_row.append( on_elCont.showerShapeValue( EgammaParameters.Rhad ) )
@@ -322,8 +329,7 @@ class ElectronDumper_v2( Algorithm ):
       event_row.append( on_elCont.showerShapeValue( EgammaParameters.Eratio ) )
       event_row.append( on_elCont.showerShapeValue( EgammaParameters.f1 ) )
 
-      trkCont  = elCont.trackParticle()
-      if trkCont:
+      if trk:
         event_row.append( True ) #FIXME
         event_row.append( elCont.deta1() )
         event_row.append( elCont.dphi2() )
@@ -412,13 +418,7 @@ class ElectronDumper_v2( Algorithm ):
       MSG_FATAL( "This event missing some column. We have some problem into the dumper code! please, verify it!")
 
 
-    #x = PrettyTable()
-    #for idx, branch in enumerate(self.__event_label):
-    #  if 'ring' in branch:
-    #    continue
-    #  #print(branch)
-    #  x.add_row( (branch, event_row[idx]))
-    #print(x)
+
 
     key = ('et%d_eta%d') % (etBinIdx, etaBinIdx)
     #print(key)
@@ -449,6 +449,9 @@ class ElectronDumper_v2( Algorithm ):
         self.save( self.__event[key], self.__event_label, 
                    etBinIdx, etaBinIdx, ofile)
   
+    del self.__event
+    gc.collect()
+
     return StatusCode.SUCCESS
 
 
@@ -521,7 +524,6 @@ class ElectronDumper_v2( Algorithm ):
                 data_float.shape[0], len(features) )
 
       save(d, ofile, protocol = 'savez_compressed') # allow_pickle by default
-
 
 
   #

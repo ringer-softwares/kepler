@@ -291,11 +291,16 @@ class Electron_v2(EDM):
     """
       Retrieve the Et information from Physval or SkimmedNtuple
     """
-    eta = self.caloCluster().etaBE2()
-    if self.trackParticle() and  self.trackParticle().eta() != 0:
-        return (self.caloCluster().energy()/math.cosh(self.trackParticle().eta()))
+
+    if self.caloCluster():
+      eta = self.caloCluster().etaBE2()
+      if self.trackParticle() and  self.trackParticle().eta() != 0:
+          return (self.caloCluster().energy()/math.cosh(self.trackParticle().eta()))
+      else:
+        return (self.caloCluster().energy()/math.cosh(eta)) 
     else:
-      return (self.caloCluster().energy()/math.cosh(eta))
+      return -1
+    
 
   def eta(self):
     """
@@ -685,9 +690,8 @@ class Electron_v2(EDM):
     if self.empty():
       return None
     elif self._is_hlt:
-      if self._event.trig_EF_el_hasCalo[self.getPos()]:
-        cluster = self.getContext().getHandler('HLT__CaloClusterContainer')
-        cluster.setPos(self.getPos())
+      cluster = self.getContext().getHandler('HLT__CaloClusterContainer')
+      if cluster.setToBeClosestThan(self.eta(), self.phi()):
         return cluster
       else:
         return None
@@ -706,9 +710,8 @@ class Electron_v2(EDM):
     if self.empty():
       return None
     elif self._is_hlt:
-      if self._event.trig_EF_el_hasTrack[self.getPos()]:
-        track = self.getContext().getHandler('HLT__TrackParticleContainer')
-        track.setPos(self.getPos())
+      track = self.getContext().getHandler('HLT__TrackParticleContainer')
+      if track.setToBeClosestThan(self.eta(),self.phi()):
         return track
       else:
         return None
@@ -767,15 +770,19 @@ class Electron_v2(EDM):
     
 
   def setToBeClosestThan( self, eta, phi ):
-    idx = 0; minDeltaR = 999
+    idx = self.getPos(); minDeltaR = 999
+    found=False
     def deltaR( eta1, phi1, eta2, phi2 ):
       deta = abs( eta1 - eta2 )
       dphi = abs( phi1 - phi2 ) if abs(phi1 - phi2) < np.pi else (2*np.pi-abs(phi1-phi2))
       return np.sqrt( deta*deta + dphi*dphi )
-    for trk in self:
-      dR = deltaR( eta, phi, self.eta(), self.phi() )
+    for el in self:
+      dR = deltaR( eta, phi, el.eta(), el.phi() )
+      if dR > 0.07:
+        continue
       if dR < minDeltaR:
         minDeltaR = dR
-        idx = self.getPos()
+        idx = el.getPos()
+        found=True
     self.setPos(idx)
-
+    return found

@@ -27,6 +27,9 @@ parser.add_argument('-mt','--numberOfThreads', action='store',
 parser.add_argument('-m','--merge', action='store_true', dest='merge', required = False, 
                     help = "Merge all output files.")
 
+parser.add_argument('-b', '--backup', action='store', dest='backup', required = False, default=None,
+                    help = "Backup index.", type=int)
+
 
 
 import sys,os
@@ -38,8 +41,17 @@ args = parser.parse_args()
 def func(command, input, output):
     return command + ' -i ' + input + ' -o ' + output
 
+
+
 from Gaugi import expand_folders
 files = expand_folders( args.inputFiles )
+files.sort()
+
+# in case of rerun
+if args.backup:
+    while len(files)>args.backup:
+        files.pop()
+
 
 prun = Pool( func, args.command, args.numberOfThreads, files, args.outputFile )
 prun.run()

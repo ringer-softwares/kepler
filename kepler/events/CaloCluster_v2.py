@@ -125,14 +125,19 @@ class CaloCluster_v2(EDM):
 
 
   def setToBeClosestThan( self, eta, phi ):
-    idx = 0; minDeltaR = 999
+    found=False
+    idx = self.getPos(); minDeltaR = 999
     def deltaR(  eta1, phi1, eta2, phi2 ):
       deta = abs( eta1 - eta2 )
       dphi = abs( phi1 - phi2 ) if abs(phi1 - phi2) < np.pi else (2*np.pi-abs(phi1-phi2))
       return np.sqrt( deta*deta + dphi*dphi )
-    for trk in self:
-      dR = deltaR( eta, phi, self.eta(), self.phi() )
+    for cl in self:
+      dR = deltaR( eta, phi, cl.eta(), cl.phi() )
+      if dR>0.07:
+        continue
       if dR < minDeltaR:
         minDeltaR = dR
-        idx = self.getPos()
+        idx = cl.getPos()
+        found=True
     self.setPos(idx)
+    return found

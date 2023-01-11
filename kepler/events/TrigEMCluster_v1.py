@@ -126,8 +126,11 @@ class TrigEMCluster_v1(EDM):
 
     def eratio(self):
         eratio = (self.emaxs1() - self.e2tsts1())
-        eratio /= (self.emaxs1() + self.e2tsts1())
-        return eratio
+        if (self.emaxs1() + self.e2tsts1()) != 0:
+            eratio /= (self.emaxs1() + self.e2tsts1())
+            return eratio
+        else:
+            return -1
 
 
 
